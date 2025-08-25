@@ -234,7 +234,7 @@ export default function Register() {
           </form>
           
           <div className="footer-links">
-            <p>Já tem uma conta? <Link href="/index" className="link">Faça login</Link></p>
+            <p>Já tem uma conta? <Link href="/" className="link">Faça login</Link></p>
           </div>
         </div>
       </div>
