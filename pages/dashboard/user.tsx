@@ -29,12 +29,15 @@ interface VoteSession {
   status: string;
   options: string[];
   hasVoted?: boolean;
-  results?: {
-    [option: string]: number;
-    total: number;
+  results?: Record<string, number | undefined> & {
+    total?: number;
+    totalVotos?: number;
+    resultado?: Record<string, number>;
     _updatedAt?: number;
   };
 }
+
+
 
 export default function UserDashboard() {
   const [allSessions, setAllSessions] = useState<VoteSession[]>([]);
@@ -94,24 +97,26 @@ export default function UserDashboard() {
   };
 
   const openResultsModal = async (session: VoteSession) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/votes_session/${session.id}/results?t=${Date.now()}`);
-      setSelectedSession({
-        ...session,
-        results: {
-          ...response.data,
-          _updatedAt: Date.now()
-        }
-      });
-      setShowResultsModal(true);
-    } catch (error) {
-      console.error('Error fetching results:', error);
-      showToast('Erro ao carregar resultados', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const response = await api.get(`/votes_session/${session.id}/results?t=${Date.now()}`);
+    setSelectedSession({
+      ...session,
+      results: {
+        resultado: response.data.results, // só os votos
+        total: response.data.total,
+        _updatedAt: Date.now()
+      }
+    });
+    setShowResultsModal(true);
+  } catch (error) {
+    console.error('Error fetching results:', error);
+    showToast('Erro ao carregar resultados', 'error');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const filteredSessions = allSessions.filter(s => {
     const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter;
