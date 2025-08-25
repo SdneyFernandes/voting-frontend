@@ -7,11 +7,10 @@ interface ResultsModalProps {
     title: string;
     description: string;
     options: string[];
-    results?: {
-      [option: string]: number;
+    results?: Record<string, number | undefined> & {
       total?: number;
       totalVotos?: number;
-      resultado?: { [option: string]: number };
+      resultado?: Record<string, number>;
       _updatedAt?: number;
     };
   };
