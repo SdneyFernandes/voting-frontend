@@ -7,6 +7,8 @@ import {
 } from 'react-icons/fi';
 import { api } from '@/services/api';
 import { getCookie } from '@/utils/cookies';
+import { toast } from "sonner";
+
 
 interface VoteSession {
   id: number;
@@ -83,7 +85,7 @@ export default function SessionsContent() {
     }));
   } catch (err) {
     console.error('Error fetching session results:', err);
-    showToast('Erro ao carregar resultados', 'error');
+    toast.error('Erro ao carregar resultados');
   }
 };
 
