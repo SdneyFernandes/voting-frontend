@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
    const handleLogout = async () => {
     try {
       await logout();
-      router.push('/login');
+      router.push('/index');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
