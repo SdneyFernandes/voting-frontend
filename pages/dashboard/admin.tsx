@@ -30,7 +30,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!userId || role !== 'ADMIN') {
-      router.push('/login');
+      router.push('/');
     } else {
       fetchData();
     }
