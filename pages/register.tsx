@@ -103,7 +103,7 @@ export default function Register() {
         }, 1000);
       }
       
-      setTimeout(() => router.push('/login'), 1500);
+      setTimeout(() => router.push('/'), 1500);
     } catch (error) {
       setIsLoading(false);
       

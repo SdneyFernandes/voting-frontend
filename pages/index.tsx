@@ -49,37 +49,26 @@ export default function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const formElement = e.currentTarget as HTMLFormElement;
-    
-    if (!validateForm()) {
-      formElement.classList.add('shake');
-      setTimeout(() => formElement.classList.remove('shake'), 500);
-      return;
-    }
-    
-    setIsLoading(true);
-    setErrors(prev => ({...prev, general: ''}));
-    
-    try {
-      await api.post('/users/login', form);
-      auth.login();
+  e.preventDefault();
+  if (!validateForm()) return;
 
-      formElement.classList.add('success-pulse');
-      setTimeout(() => formElement.classList.remove('success-pulse'), 1500);
-      
-    } catch (error) {
-      setIsLoading(false);
-      formElement.classList.add('shake');
-      setTimeout(() => formElement.classList.remove('shake'), 500);
-      
-      if (axios.isAxiosError(error)) {
-        setErrors(prev => ({...prev, general: 'Credenciais inválidas'}));
-      } else {
-        setErrors(prev => ({...prev, general: 'Erro ao fazer login'}));
-      }
-    }
-  };
+  setIsLoading(true);
+  setErrors({ email: '', password: '', general: '' });
+
+  try {
+    const response = await api.post('/users/login', form);
+    const { userId, role, token } = response.data;
+
+    auth.login({ userId, role, token });
+
+    // redirecionar aqui
+    router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
+  } catch (error) {
+    setIsLoading(false);
+    setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
+  }
+};
+
 
   return (
     <>

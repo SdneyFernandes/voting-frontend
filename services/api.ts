@@ -20,7 +20,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Redirecionar para login se não autenticado
-      Router.push('/login');
+      Router.push('/');
     }
     return Promise.reject(error);
   }
