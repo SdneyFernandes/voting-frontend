@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Role } from '@/types';
-import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
+import { getCookie } from '@/utils/cookies';
 import { api } from '@/services/api';
 
 interface AuthContextType {
   role: Role | null;
   userId: string | null;
-  token: string | null;
-  login: (data: { userId: string; role: Role; token: string }) => void;
+  login: () => void; // ✅ REMOVER parâmetro obrigatório
   logout: () => void;
   loaded: boolean;
 }
@@ -17,44 +16,59 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<Role | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const storedUserId = getCookie('userId');
-    const storedRole = getCookie('role');
-    const storedToken = getCookie('token');
+    const checkAuth = () => {
+      const storedUserId = getCookie('userId');
+      const storedRole = getCookie('role');
 
-    if (storedUserId && storedRole && storedToken) {
-      setUserId(storedUserId);
-      setRole(storedRole as Role);
-      setToken(storedToken);
-    }
+      console.log("🔍 [AuthContext] Cookies encontrados:", {
+        userId: storedUserId,
+        role: storedRole
+      });
 
-    setLoaded(true);
+      if (storedUserId && storedRole) {
+        setUserId(storedUserId);
+        setRole(storedRole as Role);
+        console.log("✅ [AuthContext] Usuário autenticado via cookies");
+      }
+
+      setLoaded(true);
+    };
+
+    checkAuth();
   }, []);
 
- const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
-  console.log("📦 [AuthContext] login recebido:", { userId, role, token });
-
-  // Garante string no userId
-  const safeUserId = String(userId);
-
-  setUserId(safeUserId);
-  setRole(role);
-  setToken(token);
-
-  setCookie('userId', safeUserId);
-  setCookie('role', role);
-  setCookie('token', token);
-
-  console.log("✅ [AuthContext] cookies gravados:", {
-    userId: getCookie("userId"),
-    role: getCookie("role"),
-    token: getCookie("token")
-  });
-};
-
+  const login = () => {
+    console.log("✅ [AuthContext] Login chamado - verificando cookies...");
+    
+    // Verificar cookies imediatamente
+    const storedUserId = getCookie('userId');
+    const storedRole = getCookie('role');
+    
+    if (storedUserId && storedRole) {
+      setUserId(storedUserId);
+      setRole(storedRole as Role);
+      console.log("✅ [AuthContext] Cookies já disponíveis");
+    } else {
+      console.log("⏳ [AuthContext] Cookies ainda não disponíveis, aguardando...");
+      // Recarregar após breve delay para cookies serem setados
+      setTimeout(() => {
+        const newUserId = getCookie('userId');
+        const newRole = getCookie('role');
+        
+        if (newUserId && newRole) {
+          setUserId(newUserId);
+          setRole(newRole as Role);
+          console.log("✅ [AuthContext] Cookies carregados após delay");
+        } else {
+          console.warn("❌ [AuthContext] Cookies ainda não encontrados após delay");
+          window.location.reload();
+        }
+      }, 300);
+    }
+  };
 
   const logout = async () => {
     try {
@@ -64,17 +78,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setUserId(null);
       setRole(null);
-      setToken(null);
-      deleteCookie('userId');
-      deleteCookie('role');
-      deleteCookie('token');
-
-
       window.location.href = '/';
     }
   };
 
-  const value = { role, userId, token, login, logout, loaded };
+  const value = { role, userId, login, logout, loaded };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

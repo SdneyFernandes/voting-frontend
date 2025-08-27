@@ -2,23 +2,20 @@
 export function getCookie(name: string): string | undefined {
   if (typeof document === 'undefined') return undefined;
 
+  console.log(`🔍 [getCookie] Buscando: ${name}`);
+  console.log(`📦 [getCookie] Todos cookies: ${document.cookie}`);
+  
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
+  
   if (parts.length >= 2) {
-    return parts.pop()?.split(';').shift();
+    const result = parts.pop()?.split(';').shift();
+    console.log(`✅ [getCookie] ${name} encontrado: ${result}`);
+    return result;
   }
+  
+  console.log(`❌ [getCookie] ${name} não encontrado`);
   return undefined;
 }
 
-export function setCookie(name: string, value: string, days = 7) {
-  if (typeof document === 'undefined') return;
-
-  const expires = new Date();
-  expires.setDate(expires.getDate() + days);
-  document.cookie = `${name}=${value}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
-}
-
-export function deleteCookie(name: string) {
-  if (typeof document === 'undefined') return;
-  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-}
+// ✅ REMOVER setCookie e deleteCookie - deixe o backend gerenciar os cookies
