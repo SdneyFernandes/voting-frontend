@@ -8,11 +8,13 @@ const baseURL = process.env.NEXT_PUBLIC_API_URL
 
 export const api = axios.create({
   baseURL: baseURL,
-  timeout: 600000, // 10 minutos
+  timeout: 600000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // 🔑 permite enviar e receber cookies
 });
+
 
 // Interceptadores para tratamento de erros (opcional mas recomendado)
 api.interceptors.response.use(

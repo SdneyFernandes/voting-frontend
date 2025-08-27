@@ -15,8 +15,9 @@ export function setCookie(name: string, value: string, days = 7) {
 
   const expires = new Date();
   expires.setDate(expires.getDate() + days);
-  document.cookie = `${name}=${value}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+  document.cookie = `${name}=${value}; path=/; expires=${expires.toUTCString()}; SameSite=None; Secure`;
 }
+
 
 export function deleteCookie(name: string) {
   if (typeof document === 'undefined') return;

@@ -21,18 +21,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const storedUserId = getCookie('userId');
-    const storedRole = getCookie('role');
-    const storedToken = getCookie('token');
-
-    if (storedUserId && storedRole && storedToken) {
-      setUserId(storedUserId);
-      setRole(storedRole as Role);
-      setToken(storedToken);
+  const checkAuth = async () => {
+    try {
+      const res = await api.get("/users/me"); // backend retorna userId e role
+      setUserId(res.data.userId);
+      setRole(res.data.role);
+      setToken("cookie"); // token agora fica só no cookie HttpOnly
+    } catch {
+      setUserId(null);
+      setRole(null);
+      setToken(null);
+    } finally {
+      setLoaded(true);
     }
+  };
 
-    setLoaded(true);
-  }, []);
+  checkAuth();
+}, []);
+
 
   const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
     setUserId(userId);
