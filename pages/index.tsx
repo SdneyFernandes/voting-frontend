@@ -56,17 +56,20 @@ export default function Login() {
   setErrors({ email: '', password: '', general: '' });
 
   try {
-    const response = await api.post('/users/login', form);
-    const { userId, role, token } = response.data;
+  const response = await api.post('/users/login', form);
+  console.log("🔑 [LoginPage] response.data:", response.data);
 
-    auth.login({ userId, role, token });
+  const { userId, role, token } = response.data;
 
-    // redirecionar aqui
-    router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
-  } catch (error) {
-    setIsLoading(false);
-    setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
-  }
+  auth.login({ userId, role, token });
+
+  router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
+} catch (error) {
+  setIsLoading(false);
+  setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
+  console.error("❌ [LoginPage] erro no login:", error);
+}
+
 };
 
 

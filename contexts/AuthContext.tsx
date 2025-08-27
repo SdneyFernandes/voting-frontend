@@ -34,15 +34,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoaded(true);
   }, []);
 
-  const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
-    setUserId(userId);
-    setRole(role);
-    setToken(token);
+ const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
+  console.log("📦 [AuthContext] login recebido:", { userId, role, token });
 
-    setCookie('userId', userId);
-    setCookie('role', role);
-    setCookie('token', token);
-  };
+  // Garante string no userId
+  const safeUserId = String(userId);
+
+  setUserId(safeUserId);
+  setRole(role);
+  setToken(token);
+
+  setCookie('userId', safeUserId);
+  setCookie('role', role);
+  setCookie('token', token);
+
+  console.log("✅ [AuthContext] cookies gravados:", {
+    userId: getCookie("userId"),
+    role: getCookie("role"),
+    token: getCookie("token")
+  });
+};
+
 
   const logout = async () => {
     try {
