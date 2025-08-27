@@ -6,7 +6,6 @@ import { LoginRequest } from '@/types';
 import Head from 'next/head';
 import Link from 'next/link';
 import axios from 'axios';
-import { getCookie } from '@/utils/cookies';
 
 export default function Login() {
   const [form, setForm] = useState<LoginRequest>({ email: '', password: '' });
@@ -49,8 +48,7 @@ export default function Login() {
     return valid;
   };
 
- // pages/login.tsx
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!validateForm()) return;
 
@@ -58,33 +56,20 @@ const handleSubmit = async (e: React.FormEvent) => {
   setErrors({ email: '', password: '', general: '' });
 
   try {
-    // ✅ Backend só retorna { message, token: null } - não esperar userId/role
-    const response = await api.post('/users/login', form);
-    console.log("🔑 [LoginPage] response.data:", response.data);
+  const response = await api.post('/users/login', form);
+  console.log("🔑 [LoginPage] response.data:", response.data);
 
-    // ✅ APENAS chamar login() para atualizar estado
-    // Os cookies já foram setados pelo backend via Set-Cookie header
-    auth.login();
+  const { userId, role, token } = response.data;
 
-    // ✅ Verificar cookies após login
-    setTimeout(() => {
-      const userId = getCookie('userId');
-      const role = getCookie('role');
-      console.log("🍪 [LoginPage] Cookies após login:", { userId, role });
-      
-      if (userId && role) {
-        router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
-      } else {
-        setErrors({ ...errors, general: 'Cookies não recebidos' });
-        setIsLoading(false);
-      }
-    }, 100);
+  auth.login({ userId, role, token });
 
-  } catch (error) {
-    setIsLoading(false);
-    setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
-    console.error("❌ [LoginPage] erro no login:", error);
-  }
+  router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
+} catch (error) {
+  setIsLoading(false);
+  setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
+  console.error("❌ [LoginPage] erro no login:", error);
+}
+
 };
 
 

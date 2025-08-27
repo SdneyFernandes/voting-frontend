@@ -13,61 +13,32 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
+// contexts/AuthContext.tsx
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<Role | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const storedUserId = getCookie('userId');
-      const storedRole = getCookie('role');
-
-      console.log("🔍 [AuthContext] Cookies encontrados:", {
-        userId: storedUserId,
-        role: storedRole
-      });
-
-      if (storedUserId && storedRole) {
-        setUserId(storedUserId);
-        setRole(storedRole as Role);
-        console.log("✅ [AuthContext] Usuário autenticado via cookies");
-      }
-
-      setLoaded(true);
-    };
-
-    checkAuth();
-  }, []);
-
-  const login = () => {
-    console.log("✅ [AuthContext] Login chamado - verificando cookies...");
-    
-    // Verificar cookies imediatamente
+    // ✅ LER COOKIES DIRETAMENTE DO NAVEGADOR (não usar setCookie)
     const storedUserId = getCookie('userId');
     const storedRole = getCookie('role');
-    
+
     if (storedUserId && storedRole) {
       setUserId(storedUserId);
       setRole(storedRole as Role);
-      console.log("✅ [AuthContext] Cookies já disponíveis");
-    } else {
-      console.log("⏳ [AuthContext] Cookies ainda não disponíveis, aguardando...");
-      // Recarregar após breve delay para cookies serem setados
-      setTimeout(() => {
-        const newUserId = getCookie('userId');
-        const newRole = getCookie('role');
-        
-        if (newUserId && newRole) {
-          setUserId(newUserId);
-          setRole(newRole as Role);
-          console.log("✅ [AuthContext] Cookies carregados após delay");
-        } else {
-          console.warn("❌ [AuthContext] Cookies ainda não encontrados após delay");
-          window.location.reload();
-        }
-      }, 300);
     }
+
+    setLoaded(true);
+  }, []);
+
+  const login = () => {
+    // ✅ REMOVER setCookie DA FUNÇÃO login!
+    // Os cookies já devem vir do backend via Set-Cookie header
+    console.log("✅ [AuthContext] Login realizado, aguardando cookies...");
+    
+    // Forçar recarregamento para ler cookies do navegador
+    setTimeout(() => window.location.reload(), 100);
   };
 
   const logout = async () => {
@@ -76,14 +47,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     } finally {
+      // ✅ APENAS limpar estado local, os cookies são removidos pelo backend
       setUserId(null);
       setRole(null);
+      
+      // Forçar recarregamento para limpar completamente
       window.location.href = '/';
     }
   };
 
   const value = { role, userId, login, logout, loaded };
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
