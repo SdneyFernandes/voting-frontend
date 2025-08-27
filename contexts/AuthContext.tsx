@@ -1,44 +1,47 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Role } from '@/types';
-import { getCookie } from '@/utils/cookies';
+import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
 import { api } from '@/services/api';
 
 interface AuthContextType {
   role: Role | null;
   userId: string | null;
-  login: () => void; // ✅ REMOVER parâmetro obrigatório
+  token: string | null;
+  login: (data: { userId: string; role: Role; token: string }) => void;
   logout: () => void;
   loaded: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-// contexts/AuthContext.tsx
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<Role | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    // ✅ LER COOKIES DIRETAMENTE DO NAVEGADOR (não usar setCookie)
     const storedUserId = getCookie('userId');
     const storedRole = getCookie('role');
+    const storedToken = getCookie('token');
 
-    if (storedUserId && storedRole) {
+    if (storedUserId && storedRole && storedToken) {
       setUserId(storedUserId);
       setRole(storedRole as Role);
+      setToken(storedToken);
     }
 
     setLoaded(true);
   }, []);
 
-  const login = () => {
-    // ✅ REMOVER setCookie DA FUNÇÃO login!
-    // Os cookies já devem vir do backend via Set-Cookie header
-    console.log("✅ [AuthContext] Login realizado, aguardando cookies...");
-    
-    // Forçar recarregamento para ler cookies do navegador
-    setTimeout(() => window.location.reload(), 100);
+  const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
+    setUserId(userId);
+    setRole(role);
+    setToken(token);
+
+    setCookie('userId', userId);
+    setCookie('role', role);
+    setCookie('token', token);
   };
 
   const logout = async () => {
@@ -47,16 +50,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     } finally {
-      // ✅ APENAS limpar estado local, os cookies são removidos pelo backend
       setUserId(null);
       setRole(null);
+      setToken(null);
+      deleteCookie('userId');
+      deleteCookie('role');
+      deleteCookie('token');
+
+
       
-      // Forçar recarregamento para limpar completamente
-      window.location.href = '/';
     }
   };
 
-  const value = { role, userId, login, logout, loaded };
+  const value = { role, userId, token, login, logout, loaded };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
