@@ -20,25 +20,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
+  // 🔹 Carrega estado inicial a partir dos cookies
   useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const res = await api.get("/users/me"); // backend retorna userId e role
-      setUserId(res.data.userId);
-      setRole(res.data.role);
-      setToken("cookie"); // token agora fica só no cookie HttpOnly
-    } catch {
-      setUserId(null);
-      setRole(null);
-      setToken(null);
-    } finally {
-      setLoaded(true);
-    }
-  };
+    const uid = getCookie('userId');
+    const r = getCookie('role') as Role | null;
+    const t = getCookie('token'); // opcional (se ainda quiser usar no frontend)
 
-  checkAuth();
-}, []);
-
+    setUserId(uid || null);
+    setRole(r || null);
+    setToken(t || null);
+    setLoaded(true);
+  }, []);
 
   const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
     setUserId(userId);
@@ -54,17 +46,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await api.post('/users/logout');
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
+      console.error('Erro ao fazer logout:', error);
     } finally {
       setUserId(null);
       setRole(null);
       setToken(null);
+
       deleteCookie('userId');
       deleteCookie('role');
       deleteCookie('token');
-
-
-      
     }
   };
 
