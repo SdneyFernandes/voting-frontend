@@ -7,7 +7,7 @@ interface AuthContextType {
   role: Role | null;
   userId: string | null;
   token: string | null;
-  login: (data: { userId: string; role: Role; token: string }) => void;
+  login: (email: string, password: string) => Promise<void>; // ✅ Alterado
   logout: () => void;
   loaded: boolean;
 }
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const uid = getCookie('userId');
     const r = getCookie('role') as Role | null;
-    const t = getCookie('token'); // opcional (se ainda quiser usar no frontend)
+    const t = getCookie('token');
 
     setUserId(uid || null);
     setRole(r || null);
@@ -32,14 +32,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoaded(true);
   }, []);
 
-  const login = ({ userId, role, token }: { userId: string; role: Role; token: string }) => {
-    setUserId(userId);
-    setRole(role);
-    setToken(token);
-
-    setCookie('userId', userId);
-    setCookie('role', role);
-    setCookie('token', token);
+  // ✅ NOVA implementação do login
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await api.post('/users/login', { email, password });
+      const { userId: id, role: userRole } = response.data;
+      
+      // ✅ Atualizar estado
+      setUserId(id);
+      setRole(userRole);
+      
+      // ✅ Setar cookies localmente (agora funcionará porque não são httpOnly)
+      setCookie('userId', id);
+      setCookie('role', userRole);
+      
+    } catch (error: any) {
+      throw new Error(error.response?.data || 'Login falhou');
+    }
   };
 
   const logout = async () => {

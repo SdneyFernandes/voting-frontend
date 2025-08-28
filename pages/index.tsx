@@ -57,15 +57,22 @@ export default function Login() {
 
   try {
     const response = await api.post('/users/login', form);
-    const { userId, role, token } = response.data;
+    console.log('Login response:', response.data); // ✅ DEBUG
+    
+    // ✅ Estrutura correta baseada no backend atual
+    const { userId, role } = response.data;
 
-    auth.login({ userId, role, token });
+    auth.login({ 
+      userId: String(userId), 
+      role: role as Role, 
+      token: '' 
+    });
 
-    // re
     router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
-  } catch (error) {
+  } catch (error: any) {
     setIsLoading(false);
-    setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
+    const errorMessage = error.response?.data || 'Credenciais inválidas';
+    setErrors((prev) => ({ ...prev, general: errorMessage }));
   }
 };
 
