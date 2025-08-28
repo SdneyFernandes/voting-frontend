@@ -48,7 +48,7 @@ export default function Login() {
     return valid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!validateForm()) return;
 
@@ -56,16 +56,18 @@ export default function Login() {
   setErrors({ email: '', password: '', general: '' });
 
   try {
-    const response = await api.post('/users/login', form);
-    const { userId, role, token } = response.data;
-
-    auth.login({ userId, role, token });
-
-    // re
-    router.push(role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
-  } catch (error) {
+    // ✅ CORREÇÃO: Use a função login do AuthContext que recebe email e password
+    await auth.login(form.email, form.password);
+    
+    // ✅ O redirecionamento deve ser feito automaticamente pelo AuthContext
+    // ou verifique os estados auth.userId e auth.role após o login
+    if (auth.userId && auth.role) {
+      router.push(auth.role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
+    }
+    
+  } catch (error: any) {
     setIsLoading(false);
-    setErrors((prev) => ({ ...prev, general: 'Credenciais inválidas' }));
+    setErrors((prev) => ({ ...prev, general: error.message || 'Credenciais inválidas' }));
   }
 };
 
