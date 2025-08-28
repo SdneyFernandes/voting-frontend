@@ -8,7 +8,7 @@ const LogoutButton = () => {
   const handleLogout = async () => {
     try {
       await api.post('/users/logout');
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       alert("Erro ao fazer logout.");
