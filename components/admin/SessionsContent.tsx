@@ -135,16 +135,18 @@ export default function SessionsContent() {
   const createSession = async () => {
     if (!validateSession()) return;
 
-    try {
-      const { title, startAt, endAt, options } = newSession;
-      await api.post('/votes_session/create', { 
-        title,
-        description: newSession.description,
-        startAt,
-        endAt,
-        options: options.filter(opt => opt.trim()),
-        creatorId: userId
-      });
+   // Converter as datas para o formato ISO 8601 completo
+    const formattedStartAt = new Date(startAt).toISOString();
+    const formattedEndAt = new Date(endAt).toISOString();
+    
+    await api.post('/votes_session/create', { 
+      title,
+      description: newSession.description,
+      startAt: formattedStartAt,      // Usar datas formatadas
+      endAt: formattedEndAt,          // Usar datas formatadas
+      options: options.filter(opt => opt.trim()),
+      creatorId: userId
+    });
       
       setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
       setNewSession({
