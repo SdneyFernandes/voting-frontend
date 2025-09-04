@@ -133,38 +133,40 @@ export default function SessionsContent() {
   };
 
   const createSession = async () => {
-    if (!validateSession()) return;
+  if (!validateSession()) return;
 
-   // Converter as datas para o formato ISO 8601 completo
+  try {
+    const { title, description, startAt, endAt, options } = newSession;
+    
+    // Converter as datas para o formato ISO 8601 completo
     const formattedStartAt = new Date(startAt).toISOString();
     const formattedEndAt = new Date(endAt).toISOString();
     
     await api.post('/votes_session/create', { 
       title,
-      description: newSession.description,
+      description,
       startAt: formattedStartAt,      // Usar datas formatadas
       endAt: formattedEndAt,          // Usar datas formatadas
       options: options.filter(opt => opt.trim()),
       creatorId: userId
     });
-      
-      setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
-      setNewSession({
-        title: '',
-        description: '',
-        startAt: '',
-        endAt: '',
-        options: ['', '']
-      });
-      fetchSessions();
-      
-      // Limpa a mensagem após 3 segundos
-      setTimeout(() => setCreationMessage({ text: '', isError: false }), 3000);
-    } catch (err) {
-      setCreationMessage({ text: 'Erro ao criar sessão', isError: true });
-      console.error('Error creating session:', err);
-    }
-  };
+    
+    setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
+    setNewSession({
+      title: '',
+      description: '',
+      startAt: '',
+      endAt: '',
+      options: ['', '']
+    });
+    fetchSessions();
+    
+    setTimeout(() => setCreationMessage({ text: '', isError: false }), 3000);
+  } catch (err) {
+    setCreationMessage({ text: 'Erro ao criar sessão', isError: true });
+    console.error('Error creating session:', err);
+  }
+};
 
   const searchSessionById = async () => {
     if (!searchSessionId) return;
