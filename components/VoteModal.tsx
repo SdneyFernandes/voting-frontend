@@ -4,30 +4,16 @@ import { FiX, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { api } from '@/services/api';
 
 interface VoteModalProps {
-  session: {
-    id: number;
-    title: string;
-    options: string[];
-    hasVoted?: boolean;
-  };
+  session: { id: number; title: string; options: string[]; hasVoted?: boolean };
   userId: number;
   onClose: () => void;
   hasVoted: boolean;
   showToast: (message: string, type: 'success' | 'error') => void;
   fetchSessions: () => void;
-  setSelectedSession: (session: any) => void;
-  setShowResultsModal: (show: boolean) => void;
 }
 
 export default function VoteModal({ 
-  session, 
-  userId, 
-  onClose, 
-  hasVoted, 
-  showToast,
-  fetchSessions,
-  setSelectedSession,
-  setShowResultsModal
+  session, userId, onClose, hasVoted, showToast, fetchSessions
 }: VoteModalProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,43 +33,22 @@ export default function VoteModal({
         `/votes/${session.id}/cast`,
         null,
         {
-          params: {
-            userId: userId,
-            option: selectedOption
-          },
-          headers: {
-            'X-User-Id': userId.toString(),
-            'X-User-Role': 'USER'
-          }
+          params: { userId, option: selectedOption },
+          headers: { 'X-User-Id': userId.toString(), 'X-User-Role': 'USER' }
         }
       );
 
-      if (response.status !== 200) {
-        throw new Error('Status de resposta inválido');
-      }
+      if (response.status !== 200) throw new Error('Status inválido');
 
       setSuccess(true);
       showToast('Voto registrado com sucesso!', 'success');
       await fetchSessions();
 
-      // Buscar resultados atualizados e abrir ResultsModal
-      const resultsResponse = await api.get(`/votes_session/${session.id}/results?t=${Date.now()}`);
-      setSelectedSession({
-        ...session,
-        results: {
-          ...resultsResponse.data,
-          _updatedAt: Date.now()
-        }
-      });
-      setShowResultsModal(true);
-
-      // Fechar modal de voto
-      setTimeout(onClose, 500);
+      setTimeout(onClose, 1500); // fecha automático
 
     } catch (err: any) {
       console.error('Erro detalhado:', err);
-      const errorMsg = err.response?.data?.message || 
-                       'Erro ao registrar voto. Tente novamente.';
+      const errorMsg = err.response?.data?.message || 'Erro ao registrar voto. Tente novamente.';
       setError(errorMsg);
       showToast(errorMsg, 'error');
     } finally {
@@ -97,9 +62,7 @@ export default function VoteModal({
         <div className="vote-modal">
           <div className="modal-header">
             <h3>Você já votou</h3>
-            <button onClick={onClose} className="close-button">
-              <FiX />
-            </button>
+            <button onClick={onClose} className="close-button"><FiX /></button>
           </div>
           <div className="modal-body">
             <div className="already-voted">
@@ -133,17 +96,11 @@ export default function VoteModal({
       <div className="vote-modal">
         <div className="modal-header">
           <h3>Votar em: {session.title}</h3>
-          <button onClick={onClose} className="close-button">
-            <FiX />
-          </button>
+          <button onClick={onClose} className="close-button"><FiX /></button>
         </div>
         <div className="modal-body">
           <p className="instruction">Selecione uma das opções abaixo:</p>
-          {error && (
-            <div className="error-message">
-              <FiAlertCircle /> {error}
-            </div>
-          )}
+          {error && <div className="error-message"><FiAlertCircle /> {error}</div>}
           <div className="options-grid">
             {session.options.map((option) => (
               <div 
@@ -157,14 +114,13 @@ export default function VoteModal({
           </div>
         </div>
         <div className="modal-footer">
-          <button onClick={onClose} className="cancel-button" disabled={isSubmitting}>
-            Cancelar
-          </button>
+          <button onClick={onClose} className="cancel-button" disabled={isSubmitting}>Cancelar</button>
           <button onClick={handleVoteClick} className="submit-button" disabled={isSubmitting || !selectedOption}>
             {isSubmitting ? 'Enviando...' : 'Confirmar Voto'}
           </button>
         </div>
       </div>
+    </div>
 
       {/* Estilos permanecem os mesmos */}
       <style jsx>{`

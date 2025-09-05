@@ -1,5 +1,5 @@
 // components/user/UserDashboard.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { api } from '@/services/api';
 import { 
   FiCalendar, 
@@ -17,6 +17,7 @@ import VoteModal from '@/components/VoteModal';
 import ResultsModal from '@/components/ResultsModal';
 import UserLayout from '@/components/layouts/UserLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useVoteResults } from '@/hooks/useVoteResults';
 
 type SessionStatus = 'ALL' | 'ACTIVE' | 'ENDED' | 'NOT_STARTED';
 
@@ -37,8 +38,6 @@ interface VoteSession {
   };
 }
 
-
-
 export default function UserDashboard() {
   const [allSessions, setAllSessions] = useState<VoteSession[]>([]);
   const [myVotes, setMyVotes] = useState<VoteSession[]>([]);
@@ -50,6 +49,7 @@ export default function UserDashboard() {
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  const { results, fetchResults } = useVoteResults();
   const userId = Number(getCookie('userId'));
 
   const fetchSessions = async () => {
@@ -97,41 +97,42 @@ export default function UserDashboard() {
   };
 
   const openResultsModal = async (session: VoteSession) => {
-  try {
-    setLoading(true);
-    const response = await api.get(`/votes_session/${session.id}/results?t=${Date.now()}`);
-    setSelectedSession({
-      ...session,
-      results: {
-        resultado: response.data.results, // só os votos
-        total: response.data.total,
-        _updatedAt: Date.now()
-      }
+    if (session.status !== 'ENDED') {
+      showToast('Resultados disponíveis apenas após o encerramento da sessão', 'error');
+      return;
+    }
+    try {
+      setLoading(true);
+      const normalized = await fetchResults(session.id);
+      setSelectedSession({ ...session, results: normalized });
+      setShowResultsModal(true);
+    } catch {
+      showToast('Erro ao carregar resultados', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredSessions = useMemo(() => {
+    return allSessions.filter(s => {
+      const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter;
+      const matchesSearch = search === '' || 
+                           s.title.toLowerCase().includes(search.toLowerCase()) || 
+                           String(s.id).includes(search);
+      return matchesStatus && matchesSearch;
     });
-    setShowResultsModal(true);
-  } catch (error) {
-    console.error('Error fetching results:', error);
-    showToast('Erro ao carregar resultados', 'error');
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const filteredSessions = allSessions.filter(s => {
-    const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter;
-    const matchesSearch = search === '' || 
-                         s.title.toLowerCase().includes(search.toLowerCase()) || 
-                         String(s.id).includes(search);
-    return matchesStatus && matchesSearch;
-  });
+  }, [allSessions, statusFilter, search]);
 
   return (
     <ProtectedRoute requiredRole="USER">
     <UserLayout>
       {/* Toast Notification */}
       {toast && (
-        <div className={`toast ${toast.type}`}>
+        <div 
+          className={`toast ${toast.type}`} 
+          role="alert" 
+          aria-live="polite"
+        >
           {toast.message}
           <button onClick={() => setToast(null)} className="toast-close">
             <FiX />
@@ -345,18 +346,15 @@ export default function UserDashboard() {
 
       {/* Modals */}
       {showVoteModal && selectedSession && (
-  <VoteModal
-    session={selectedSession}
-    userId={userId}
-    onClose={() => setShowVoteModal(false)}
-    hasVoted={selectedSession.hasVoted ?? false}
-    showToast={showToast}
-    fetchSessions={fetchSessions}
-    setSelectedSession={setSelectedSession} // NOVO
-    setShowResultsModal={setShowResultsModal} // NOVO
-  />
-)}
-
+        <VoteModal
+          session={selectedSession}
+          userId={userId}
+          onClose={() => setShowVoteModal(false)}
+          hasVoted={selectedSession.hasVoted ?? false}
+          showToast={showToast}
+          fetchSessions={fetchSessions}
+        />
+      )}
 
       {showResultsModal && selectedSession && (
         <ResultsModal
