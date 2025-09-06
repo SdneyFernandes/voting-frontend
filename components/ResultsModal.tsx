@@ -25,36 +25,33 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [localResults, setLocalResults] = useState(() => normalizeResults(session.results));
 
-  // Função para normalizar o formato dos resultados
   function normalizeResults(results?: any) {
     if (!results) return undefined;
 
-    // Se já estiver no formato esperado
-    if (results.total !== undefined && !results.resultado) {
-      return results;
-    }
-
-    // Adaptar formato { totalVotos, resultado, _updatedAt }
     const normalized: any = {
-      total: results.totalVotos ?? 0,
+      total: results.totalVotos ?? results.total ?? 0,
       _updatedAt: results._updatedAt ?? Date.now(),
     };
 
     if (results.resultado && typeof results.resultado === 'object') {
       for (const [opt, votos] of Object.entries(results.resultado)) {
-        normalized[opt] = votos;
+        normalized[opt] = Number(votos);
+      }
+    } else {
+      for (const [opt, votos] of Object.entries(results)) {
+        if (!['total', 'totalVotos', '_updatedAt', 'resultado'].includes(opt)) {
+          normalized[opt] = Number(votos);
+        }
       }
     }
 
     return normalized;
   }
 
-  // Atualizar localResults sempre que session.results mudar
   useEffect(() => {
     setLocalResults(normalizeResults(session.results));
   }, [session.results]);
 
-  // Efeito para animação dos gráficos
   useEffect(() => {
     setIsAnimating(true);
     const duration = 1000;
@@ -250,6 +247,7 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
           </button>
         </div>
       </div>
+
 
       <style jsx>{`
         .modal-overlay {
