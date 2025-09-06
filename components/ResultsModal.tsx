@@ -1,5 +1,6 @@
 import { FiX, FiPieChart, FiBarChart2, FiDownload, FiUsers, FiCheck } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
+import { normalizeResults, NormalizedResults } from '@/utils/normalizeResults';
 
 interface ResultsModalProps {
   session: {
@@ -23,30 +24,9 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
   const [activeTab, setActiveTab] = useState<'chart' | 'table'>('chart');
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const [localResults, setLocalResults] = useState(() => normalizeResults(session.results));
-
-  function normalizeResults(results?: any) {
-    if (!results) return undefined;
-
-    const normalized: any = {
-      total: results.totalVotos ?? results.total ?? 0,
-      _updatedAt: results._updatedAt ?? Date.now(),
-    };
-
-    if (results.resultado && typeof results.resultado === 'object') {
-      for (const [opt, votos] of Object.entries(results.resultado)) {
-        normalized[opt] = Number(votos);
-      }
-    } else {
-      for (const [opt, votos] of Object.entries(results)) {
-        if (!['total', 'totalVotos', '_updatedAt', 'resultado'].includes(opt)) {
-          normalized[opt] = Number(votos);
-        }
-      }
-    }
-
-    return normalized;
-  }
+  const [localResults, setLocalResults] = useState<NormalizedResults | undefined>(() =>
+    normalizeResults(session.results)
+  );
 
   useEffect(() => {
     setLocalResults(normalizeResults(session.results));
@@ -101,17 +81,19 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
   }
 
   const totalVotes = localResults.total || 1;
-  const maxVotes = Math.max(...session.options.map(opt => localResults?.[opt] || 0), 1);
+  const maxVotes = Math.max(...session.options.map(opt => localResults?.[opt] as number || 0), 1);
 
   const sortedOptions = [...session.options].sort((a, b) => {
-    const votesA = localResults?.[a] || 0;
-    const votesB = localResults?.[b] || 0;
+    const votesA = (localResults?.[a] as number) || 0;
+    const votesB = (localResults?.[b] as number) || 0;
     return votesB - votesA;
   });
 
   const winner = sortedOptions.length > 0 ? sortedOptions[0] : null;
-  const isTie = sortedOptions.length > 1 &&
-                (localResults?.[sortedOptions[0]] || 0) === (localResults?.[sortedOptions[1]] || 0);
+  const isTie =
+    sortedOptions.length > 1 &&
+    ((localResults?.[sortedOptions[0]] as number) || 0) ===
+      ((localResults?.[sortedOptions[1]] as number) || 0);
 
   useEffect(() => {
     console.log('Results atualizados no modal:', localResults);

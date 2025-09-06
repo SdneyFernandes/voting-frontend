@@ -18,7 +18,7 @@ import ResultsModal from '@/components/ResultsModal';
 import UserLayout from '@/components/layouts/UserLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useVoteResults } from '@/hooks/useVoteResults';
-
+import { normalizeResults } from "@/utils/normalizeResults";
 type SessionStatus = 'ALL' | 'ACTIVE' | 'ENDED' | 'NOT_STARTED';
 
 interface VoteSession {
@@ -99,36 +99,24 @@ export default function UserDashboard() {
   };
 
     const openResultsModal = async (session: VoteSession) => {
-    if (session.status !== 'ENDED') {
-      showToast('Resultados disponíveis apenas após o encerramento da sessão', 'error');
-      return;
-    }
-    try {
-      setLoading(true);
-      const normalized = await fetchResults(session.id);
+  if (session.status !== 'ENDED') {
+    showToast('Resultados disponíveis apenas após o encerramento da sessão', 'error');
+    return;
+  }
+  try {
+    setLoading(true);
+    const normalized = await fetchResults(session.id);
 
-      console.log('Resultados recebidos da API:', normalized); 
+    if (!normalized) throw new Error("Resultados inválidos");
 
-
-      // 🔑 Converte todos os valores para número
-      const safeResults: VoteSession['results'] = {
-        ...normalized,
-        total: normalized.total ? Number(normalized.total) : undefined,
-        totalVotos: normalized.totalVotos ? Number(normalized.totalVotos) : undefined,
-        resultado: Object.fromEntries(
-          Object.entries(normalized.resultado || {}).map(([k, v]) => [k, Number(v)])
-        ),
-        _updatedAt: normalized._updatedAt ? Number(normalized._updatedAt) : undefined,
-      };
-
-      setSelectedSession({ ...session, results: safeResults as any });
+    setSelectedSession({ ...session, results: normalized as any });
     setShowResultsModal(true);
   } catch {
     showToast('Erro ao carregar resultados', 'error');
   } finally {
     setLoading(false);
   }
-  };
+};
 
   const filteredSessions = useMemo(() => {
     return allSessions.filter(s => {
