@@ -81,19 +81,19 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
   }
 
   const totalVotes = localResults.total || 1;
-  const maxVotes = Math.max(...session.options.map(opt => localResults?.[opt] as number || 0), 1);
+  const maxVotes = Math.max(...session.options.map(opt => Number(localResults?.[opt] ?? 0)), 1);
 
   const sortedOptions = [...session.options].sort((a, b) => {
-    const votesA = (localResults?.[a] as number) || 0;
-    const votesB = (localResults?.[b] as number) || 0;
+    const votesA = Number(localResults?.[a] ?? 0);
+    const votesB = Number(localResults?.[b] ?? 0);
     return votesB - votesA;
   });
 
   const winner = sortedOptions.length > 0 ? sortedOptions[0] : null;
   const isTie =
     sortedOptions.length > 1 &&
-    ((localResults?.[sortedOptions[0]] as number) || 0) ===
-      ((localResults?.[sortedOptions[1]] as number) || 0);
+    Number(localResults?.[sortedOptions[0]] ?? 0) ===
+      Number(localResults?.[sortedOptions[1]] ?? 0);
 
   useEffect(() => {
     console.log('Results atualizados no modal:', localResults);
@@ -157,17 +157,19 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
             <div className="chart-container" key={localResults?._updatedAt}>
               <div className="bar-chart">
                 {sortedOptions.map((option, index) => {
-                  const votes = localResults?.[option] || 0;
+                  const votes = Number(localResults?.[option] ?? 0);
                   const percentage = (votes / totalVotes) * 100;
                   const animatedPercentage = isAnimating
-                    ? (percentage * animationProgress)
+                    ? percentage * animationProgress
                     : percentage;
 
                   return (
                     <div key={option} className="bar-item">
                       <div className="bar-label">
                         <span>{option}</span>
-                        <span className="bar-value">{votes} votos ({percentage.toFixed(1)}%)</span>
+                        <span className="bar-value">
+                          {votes} votos ({percentage.toFixed(1)}%)
+                        </span>
                       </div>
                       <div className="bar-track">
                         <div
@@ -191,7 +193,7 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
                 <div className="table-cell">Porcentagem</div>
               </div>
               {sortedOptions.map((option, index) => {
-                const votes = localResults?.[option] || 0;
+                const votes = Number(localResults?.[option] ?? 0);
                 const percentage = (votes / totalVotes) * 100;
 
                 return (
