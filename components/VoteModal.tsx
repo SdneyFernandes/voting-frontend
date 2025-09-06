@@ -120,7 +120,6 @@ export default function VoteModal({
           </button>
         </div>
       </div>
-    </div>
 
       {/* Estilos permanecem os mesmos */}
       <style jsx>{`
