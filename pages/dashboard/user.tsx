@@ -371,11 +371,12 @@ export default function UserDashboard() {
       )}
 
       {showResultsModal && selectedSession && (
-        <ResultsModal
-          session={selectedSession}
-          onClose={() => setShowResultsModal(false)}
-        />
-      )}
+  <ResultsModal
+    session={selectedSession as any}
+    onClose={() => setShowResultsModal(false)}
+  />
+)}
+
 
       <style jsx>{`
         /* Hero Section */
