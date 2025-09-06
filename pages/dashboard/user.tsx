@@ -118,13 +118,13 @@ export default function UserDashboard() {
         _updatedAt: normalized._updatedAt ? Number(normalized._updatedAt) : undefined,
       };
 
-      setSelectedSession({ ...session, results: safeResults });
-      setShowResultsModal(true);
-    } catch {
-      showToast('Erro ao carregar resultados', 'error');
-    } finally {
-      setLoading(false);
-    }
+      setSelectedSession({ ...session, results: safeResults as any });
+    setShowResultsModal(true);
+  } catch {
+    showToast('Erro ao carregar resultados', 'error');
+  } finally {
+    setLoading(false);
+  }
   };
 
   const filteredSessions = useMemo(() => {
