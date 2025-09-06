@@ -30,13 +30,15 @@ interface VoteSession {
   status: string;
   options: string[];
   hasVoted?: boolean;
-  results?: Record<string, number | undefined> & {
+  results?: {
     total?: number;
     totalVotos?: number;
     resultado?: Record<string, number>;
     _updatedAt?: number;
+    [key: string]: number | Record<string, number> | undefined;
   };
 }
+
 
 export default function UserDashboard() {
   const [allSessions, setAllSessions] = useState<VoteSession[]>([]);
