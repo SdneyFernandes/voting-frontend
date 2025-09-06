@@ -107,6 +107,9 @@ export default function UserDashboard() {
       setLoading(true);
       const normalized = await fetchResults(session.id);
 
+      console.log('Resultados recebidos da API:', normalized); 
+
+
       // 🔑 Converte todos os valores para número
       const safeResults: VoteSession['results'] = {
         ...normalized,
