@@ -96,7 +96,7 @@ export default function UserDashboard() {
     setShowVoteModal(true);
   };
 
-  const openResultsModal = async (session: VoteSession) => {
+    const openResultsModal = async (session: VoteSession) => {
     if (session.status !== 'ENDED') {
       showToast('Resultados disponíveis apenas após o encerramento da sessão', 'error');
       return;
@@ -104,7 +104,19 @@ export default function UserDashboard() {
     try {
       setLoading(true);
       const normalized = await fetchResults(session.id);
-      setSelectedSession({ ...session, results: normalized });
+
+      // 🔑 Converte todos os valores para número
+      const safeResults: VoteSession['results'] = {
+        ...normalized,
+        total: normalized.total ? Number(normalized.total) : undefined,
+        totalVotos: normalized.totalVotos ? Number(normalized.totalVotos) : undefined,
+        resultado: Object.fromEntries(
+          Object.entries(normalized.resultado || {}).map(([k, v]) => [k, Number(v)])
+        ),
+        _updatedAt: normalized._updatedAt ? Number(normalized._updatedAt) : undefined,
+      };
+
+      setSelectedSession({ ...session, results: safeResults });
       setShowResultsModal(true);
     } catch {
       showToast('Erro ao carregar resultados', 'error');
