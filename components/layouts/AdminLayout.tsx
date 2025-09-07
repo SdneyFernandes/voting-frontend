@@ -9,11 +9,8 @@ import { useRouter } from 'next/router';
 type AdminRoute = 'dashboard' | 'users' | 'sessions' | 'settings';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  // Estado para o sidebar no desktop (largo/estreito)
   const [sidebarDesktopOpen, setSidebarDesktopOpen] = useState(true);
-  // Estado para o sidebar no mobile (aberto/fechado)
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
-  
   const [activeRoute, setActiveRoute] = useState<AdminRoute>('dashboard');
   const { logout } = useAuth();
   const router = useRouter();
@@ -37,24 +34,45 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  // Efeito de digitação (mantido como estava)
+  // Efeito de digitação
   const [typingText, setTypingText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const fullText = "🥖🥖 🧀🧀";
   useEffect(() => {
-    // A lógica do efeito de digitação continua a mesma aqui...
     let i = 0;
     let typingInterval: NodeJS.Timeout;
-    let cursorInterval: NodeJS.Timeout;
-    const startTyping = () => { /*...*/ };
-    const startErasing = () => { /*...*/ };
-    // O código completo do useEffect está oculto para simplicidade, mas mantenha o seu.
-    // ...
+    const startTyping = () => {
+      typingInterval = setInterval(() => {
+        if (i < fullText.length) {
+          setTypingText(fullText.substring(0, i + 1));
+          i++;
+        } else {
+          clearInterval(typingInterval);
+          setTimeout(startErasing, 1000);
+        }
+      }, 100);
+    };
+    const startErasing = () => {
+      typingInterval = setInterval(() => {
+        if (i > 0) {
+          setTypingText(fullText.substring(0, i - 1));
+          i--;
+        } else {
+          clearInterval(typingInterval);
+          setTimeout(startTyping, 500);
+        }
+      }, 50);
+    };
+    startTyping();
+    const cursorInterval = setInterval(() => setShowCursor(prev => !prev), 500);
+    return () => {
+      clearInterval(typingInterval);
+      clearInterval(cursorInterval);
+    };
   }, [fullText]);
 
   const handleNavClick = (route: AdminRoute) => {
     setActiveRoute(route);
-    // Fecha o menu mobile ao navegar
     if (window.innerWidth <= 768) {
       setSidebarMobileOpen(false);
     }
@@ -63,26 +81,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="admin-container">
-        {/* Overlay para fechar o menu no mobile */}
         <div 
           className={`mobile-overlay ${sidebarMobileOpen ? 'visible' : ''}`}
           onClick={() => setSidebarMobileOpen(false)}
         />
-
-        {/* Sidebar */}
         <div className={`sidebar ${sidebarDesktopOpen ? 'desktop-open' : 'desktop-closed'} ${sidebarMobileOpen ? 'mobile-open' : ''}`}>
           <div className="sidebar-header">
             {sidebarDesktopOpen && <h1 className="logo">MONOPÓLIO</h1>}
-            
             <button onClick={() => setSidebarMobileOpen(false)} className="sidebar-toggle-mobile-close">
               <FiX size={20} />
             </button>
-            
             <button onClick={() => setSidebarDesktopOpen(!sidebarDesktopOpen)} className="sidebar-toggle-desktop">
               <FiMenu size={20} />
             </button>
           </div>
-          
           <nav className="sidebar-nav">
             <NavItem icon={<FiHome size={20} />} text="Dashboard" active={activeRoute === 'dashboard'} expanded={sidebarDesktopOpen || sidebarMobileOpen} onClick={() => handleNavClick('dashboard')} />
             <NavItem icon={<FiUsers size={20} />} text="Usuários" active={activeRoute === 'users'} expanded={sidebarDesktopOpen || sidebarMobileOpen} onClick={() => handleNavClick('users')} />
@@ -91,15 +103,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </nav>
         </div>
 
-        {/* Main Content */}
         <div className="main-content">
           <header className="admin-header">
-            <button onClick={() => setSidebarMobileOpen(true)} className="mobile-menu-toggle">
-              <FiMenu size={22} />
-            </button>
+            {/* ✅ DIV 'header-left' CORRIGIDA AQUI ✅ */}
+            <div className="header-left">
+              <button onClick={() => setSidebarMobileOpen(true)} className="mobile-menu-toggle">
+                <FiMenu size={22} />
+              </button>
+              <h2 className="header-title">Painel de Administração</h2>
+            </div>
             
-            <h2 className="header-title">Painel de Administração</h2>
-
             <div className="header-right">
               <div className="creative-text">
                 {typingText}<span className={`cursor ${showCursor ? 'visible' : ''}`}>|</span>
@@ -122,50 +135,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       <style jsx global>{`
         :root {
-          --black-1: #0a0a0a;
-          --black-2: #121212;
-          --black-3: #1a1a1a;
-          --black-4: #222222;
-          --gray-1: #333333;
-          --gray-2: #555555;
-          --gray-3: #777777;
-          --gray-4: #999999;
-          --white: #e0e0e0;
-          --white-alpha: rgba(255, 255, 255, 0.1);
-          --blue-1: #1e3a8a;
-          --blue-2: #2563eb;
-          --blue-3: #3b82f6;
-          --blue-4: #60a5fa;
-          --green-1: #14532d;
-          --green-2: #15803d;
-          --red-1: #7f1d1d;
-          --red-2: #dc2626;
-          --purple-1: #4c1d95;
-          --purple-2: #7e22ce;
+          --black-1: #0a0a0a; --black-2: #121212; --black-3: #1a1a1a; --black-4: #222222;
+          --gray-1: #333333; --gray-2: #555555; --gray-3: #777777; --gray-4: #999999;
+          --white: #e0e0e0; --blue-1: #1e3a8a; --blue-2: #2563eb; --blue-3: #3b82f6;
+          --green-1: #14532d; --green-2: #15803d; --red-1: #7f1d1d; --red-2: #dc2626;
         }
-        
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-        
-        body {
-          background-color: var(--black-1);
-          color: var(--white);
-          overflow-x: hidden;
-        }
-        
-        @keyframes slideIn {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body { background-color: var(--black-1); color: var(--white); overflow-x: hidden; }
       `}</style>
       
       <style jsx>{`
         .admin-container { display: flex; min-height: 100vh; }
-        .sidebar { background-color: var(--black-3); transition: all 0.3s ease; height: 100vh; position: sticky; top: 0; border-right: 1px solid var(--gray-1); z-index: 50; }
+        .sidebar { background-color: var(--black-3); transition: width 0.3s ease; height: 100vh; position: sticky; top: 0; border-right: 1px solid var(--gray-1); z-index: 50; }
         .sidebar.desktop-open { width: 256px; }
         .sidebar.desktop-closed { width: 80px; }
         .sidebar-header { padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-1); }
@@ -174,20 +155,31 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         .sidebar-nav { margin-top: 1.5rem; padding: 0 0.5rem; }
         .main-content { flex: 1; display: flex; flex-direction: column; }
         .admin-header { background-color: var(--black-3); border-bottom: 1px solid var(--gray-1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+        
+        /* ✅ ESTILO ADICIONADO PARA 'header-left' ✅ */
+        .header-left { display: flex; align-items: center; gap: 1rem; }
         .header-title { font-size: 1.25rem; font-weight: 600; }
-        .header-right { display: flex; align-items: center; gap: 1rem; }
-        .creative-text, .user-profile { /* Estilos mantidos */ }
+        .header-right { display: flex; align-items: center; gap: 1.5rem; }
+
+        .creative-text { font-family: 'Courier New', monospace; font-size: 1.1rem; color: var(--white); background: var(--black-4); padding: 0.5rem 1rem; border-radius: 0.25rem; min-width: 180px; text-align: center; }
+        .cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
+        .notification-btn { position: relative; padding: 0.5rem; background: transparent; border: none; color: var(--white); cursor: pointer; border-radius: 50%; }
+        .notification-badge { position: absolute; top: 0; right: 0; width: 0.5rem; height: 0.5rem; background-color: var(--red-2); border-radius: 50%; }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .avatar { width: 2rem; height: 2rem; border-radius: 50%; background-color: var(--blue-3); display: flex; align-items: center; justify-content: center; }
+        .avatar-initial { font-weight: 600; }
+        .username { font-size: 0.875rem; }
+        .logout-btn { background: transparent; border: none; color: var(--gray-4); cursor: pointer; padding: 0.5rem; }
         .content-area { flex: 1; overflow-y: auto; padding: 1.5rem; background-color: var(--black-2); }
         
-        /* Controles de visibilidade mobile/desktop */
         .mobile-menu-toggle { display: none; background: transparent; border: none; color: var(--white); cursor: pointer; }
         .sidebar-toggle-mobile-close { display: none; }
         .mobile-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .mobile-overlay.visible { opacity: 1; pointer-events: auto; }
 
-        /* --- MEDIA QUERY PARA CELULAR --- */
         @media (max-width: 768px) {
-          .sidebar { position: fixed; width: 280px; transform: translateX(-100%); }
+          .sidebar { position: fixed; width: 280px; transform: translateX(-100%); transition: transform 0.3s ease; }
           .sidebar.mobile-open { transform: translateX(0); }
           .sidebar-toggle-desktop { display: none; }
           .sidebar-toggle-mobile-close { display: block; }
@@ -195,7 +187,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           .main-content { width: 100%; }
           .mobile-menu-toggle { display: block; }
           .header-title, .creative-text, .username { display: none; }
-          .admin-header { padding: 1rem; justify-content: space-between; }
+          .admin-header { padding: 1rem; }
           .header-right { gap: 0.5rem; }
           .content-area { padding: 1rem; }
         }
