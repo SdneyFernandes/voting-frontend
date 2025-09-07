@@ -271,43 +271,45 @@ export default function UserDashboard() {
           </div>
         ) : filteredSessions.length > 0 ? (
           <div className="sessions-table">
-            <div className="table-header">
-              <div className="table-cell">Título</div>
-              <div className="table-cell">Status</div>
-              <div className="table-cell">Período</div>
-              <div className="table-cell">Ações</div>
-            </div>
-            {filteredSessions.map(session => (
-              <div key={session.id} className="table-row">
-                <div className="table-cell">
-                  <h4>{session.title}</h4>
-                  <p className="session-description">{session.description}</p>
-                </div>
-                <div className="table-cell">
-                  <span className={`status-badge ${session.status.toLowerCase()}`}>
-                    {session.status === 'ACTIVE' ? 'Ativa' : 
-                     session.status === 'ENDED' ? 'Encerrada' : 'Não Iniciada'}
-                  </span>
-                </div>
-                <div className="table-cell">
-                  {new Date(session.startAt).toLocaleDateString()} - {new Date(session.endAt).toLocaleDateString()}
-                </div>
-                <div className="table-cell actions-cell">
-                  {session.status === 'ACTIVE' ? (
-                    <button 
-                      onClick={() => openVoteModal(session)}
-                      className={`action-button ${session.hasVoted ? 'voted' : 'vote'}`}
-                      disabled={session.hasVoted}
-                    >
-                      {session.hasVoted ? 'Votado' : 'Votar'}
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => openResultsModal(session)}
-                      className="action-button results"
-                    >
-                      Ver Resultados
-                    </button>
+  <div className="table-header">
+    <div className="table-cell">Título</div>
+    <div className="table-cell">Status</div>
+    <div className="table-cell">Período</div>
+    <div className="table-cell">Ações</div>
+  </div>
+  {filteredSessions.map(session => (
+    <div key={session.id} className="table-row">
+      <div className="table-cell" data-label="Sessão">
+        <div>
+          <h4>{session.title}</h4>
+          <p className="session-description">{session.description}</p>
+        </div>
+      </div>
+      <div className="table-cell" data-label="Status">
+        <span className={`status-badge ${session.status.toLowerCase()}`}>
+          {session.status === 'ACTIVE' ? 'Ativa' : 
+           session.status === 'ENDED' ? 'Encerrada' : 'Não Iniciada'}
+        </span>
+      </div>
+      <div className="table-cell" data-label="Período">
+        {new Date(session.startAt).toLocaleDateString()} - {new Date(session.endAt).toLocaleDateString()}
+      </div>
+      <div className="table-cell actions-cell">
+        {session.status === 'ACTIVE' ? (
+          <button 
+            onClick={() => openVoteModal(session)}
+            className={`action-button ${session.hasVoted ? 'voted' : 'vote'}`}
+            disabled={session.hasVoted}
+          >
+            {session.hasVoted ? 'Votado' : 'Votar'}
+          </button>
+        ) : (
+          <button 
+            onClick={() => openResultsModal(session)}
+            className="action-button results"
+          >
+            Ver Resultados
+          </button>
                   )}
                 </div>
               </div>
@@ -922,7 +924,102 @@ export default function UserDashboard() {
             transform: translateY(0);
           }
         }
-      `}</style>
+      @media (max-width: 768px) {
+    /* Ajusta o cabeçalho principal */
+    .hero-section {
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .hero-content {
+      max-width: 100%;
+    }
+    .hero-title {
+      font-size: 1.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+    .hero-stats {
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    /* Ajusta os filtros */
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .filters-container {
+      width: 100%;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+    .search-input-container {
+      max-width: 100%;
+    }
+
+    /* Transforma a tabela em cards */
+    .sessions-table {
+      border: none;
+      background-color: transparent;
+    }
+    .table-header {
+      display: none; /* Esconde o cabeçalho da tabela */
+    }
+    .table-row {
+      display: block; /* Cada linha vira um bloco */
+      background-color: var(--black-4);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--gray-1);
+    }
+    .table-cell {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--gray-1);
+    }
+    .table-row .table-cell:last-child {
+      border-bottom: none;
+    }
+    .table-cell::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: var(--gray-4);
+      margin-right: 1rem;
+    }
+    .actions-cell {
+      justify-content: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-1);
+    }
+    .actions-cell::before {
+      display: none; /* Remove o label da célula de ações */
+    }
+    .table-cell:first-child {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .table-cell:first-child::before {
+        display: none;
+    }
+    .table-cell h4 {
+        font-size: 1rem;
+    }
+
+    /* Esconde a timeline no mobile por ser complexa */
+    .votes-timeline {
+        display: none;
+    }
+  }
+`}</style>
     </UserLayout>
     </ProtectedRoute>
   );
