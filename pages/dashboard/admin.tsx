@@ -178,153 +178,149 @@ export default function AdminDashboard() {
       </div>
 
       <style jsx>{`
-          .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-          }
-          .section-container {
-            background-color: var(--black-3);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border: 1px solid var(--gray-1);
-          }
-          .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-          }
-          .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--white);
-          }
-          .filter-container {
-            position: relative;
-            min-width: 250px;
-          }
-          .status-filter {
-            padding: 0.5rem 1rem;
-            background-color: var(--black-4);
-            border: 1px solid var(--gray-1);
-            border-radius: 0.5rem;
-            color: var(--white);
-            width: 100%;
-            transition: all 0.3s ease;
-            cursor: pointer;
-          }
-          .status-filter:focus {
-            outline: none;
-            border-color: var(--gray-3);
-          }
-          .session-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-          }
-          .session-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--black-4);
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-          }
-          .session-item:hover {
-            background-color: var(--gray-1);
-            transform: translateX(5px);
-          }
-          .session-info {
-            flex: 1;
-          }
-          .session-title {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            color: var(--white);
-          }
-          .session-dates {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--gray-4);
-          }
-          .session-dates .icon {
-            margin-right: 0.25rem;
-          }
-          .session-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-          }
-          .session-status.active {
-            background-color: var(--green-1);
-            color: var(--white);
-          }
-          .session-status.ended {
-            background-color: var(--red-1);
-            color: var(--white);
-          }
-          .session-status.pending {
-            background-color: var(--gray-1);
-            color: var(--white);
-          }
-          .empty-state {
-            padding: 2rem;
-            text-align: center;
-            color: var(--gray-4);
-          }
-          .loading-spinner {
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
-          }
-          .spinner {
-            width: 2rem;
-            height: 2rem;
-            border: 3px solid var(--gray-1);
-            border-top-color: var(--blue-3);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-          
-          /* --- MEDIA QUERIES PARA O DASHBOARD ADMIN --- */
-          @media (max-width: 768px) {
-            .stats-grid {
-              grid-template-columns: 1fr; /* Cards de estatísticas em uma única coluna */
-            }
-            .section-header {
-              flex-direction: column;
-              align-items: flex-start;
-            }
-            .filter-container {
-              width: 100%;
-            }
-            .session-item {
-              flex-direction: column; /* Transforma itens da lista em cards */
-              align-items: flex-start;
-              gap: 0.75rem;
-            }
-            .session-item:hover {
-              transform: translateX(0); /* Remove efeito de hover no mobile */
-            }
-            .session-status {
-              align-self: flex-end; /* Alinha o status à direita do card */
-            }
-          }
-        `}</style>
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        
+        .section-container {
+          background-color: var(--black-3);
+          border-radius: 0.75rem;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          border: 1px solid var(--gray-1);
+        }
+        
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+        
+        .section-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--white);
+        }
+        
+        .filter-container {
+          position: relative;
+          min-width: 250px;
+        }
+        
+        .status-filter {
+          padding: 0.5rem 1rem;
+          background-color: var(--black-4);
+          border: 1px solid var(--gray-1);
+          border-radius: 0.5rem;
+          color: var(--white);
+          width: 100%;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        
+        .status-filter:focus {
+          outline: none;
+          border-color: var(--gray-3);
+        }
+        
+        .session-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        
+        .session-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem;
+          background-color: var(--black-4);
+          border-radius: 0.5rem;
+          transition: all 0.3s ease;
+        }
+        
+        .session-item:hover {
+          background-color: var(--gray-1);
+          transform: translateX(5px);
+        }
+        
+        .session-info {
+          flex: 1;
+        }
+        
+        .session-title {
+          font-size: 1rem;
+          font-weight: 500;
+          margin-bottom: 0.25rem;
+          color: var(--white);
+        }
+        
+        .session-dates {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          color: var(--gray-4);
+        }
+        
+        .session-dates .icon {
+          margin-right: 0.25rem;
+        }
+        
+        .session-status {
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        
+        .session-status.active {
+          background-color: var(--green-1);
+          color: var(--white);
+        }
+        
+        .session-status.ended {
+          background-color: var(--red-1);
+          color: var(--white);
+        }
+        
+        .session-status.pending {
+          background-color: var(--gray-1);
+          color: var(--white);
+        }
+        
+        .empty-state {
+          padding: 2rem;
+          text-align: center;
+          color: var(--gray-4);
+        }
+        
+        .loading-spinner {
+          display: flex;
+          justify-content: center;
+          padding: 2rem;
+        }
+        
+        .spinner {
+          width: 2rem;
+          height: 2rem;
+          border: 3px solid var(--gray-1);
+          border-top-color: var(--blue-3);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </AdminLayout>
     </ProtectedRoute>
   );
@@ -401,7 +397,9 @@ function StatCard({ title, value, icon, color }: { title: string, value: number,
           font-size: 1.75rem;
           font-weight: 700;
           color: var(--white);
-        }       
+        }
+
+        
 
       `}</style>
     </div>
