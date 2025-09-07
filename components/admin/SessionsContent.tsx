@@ -52,8 +52,6 @@ export default function SessionsContent() {
   }, []);
 
   useEffect(() => {
-    // Quando mudar de aba ou a lista de sessões for atualizada,
-    // reseta a busca e exibe a lista completa.
     setSearchSessionId('');
     setFilteredSessions(sessions);
   }, [activeTab, sessions]);
@@ -62,7 +60,6 @@ export default function SessionsContent() {
     try {
       setLoading(true);
       const res = await api.get('/votes_session');
-      // Ordena as sessões, colocando as mais recentes primeiro
       const sortedSessions = res.data.sort((a: VoteSession, b: VoteSession) => b.id - a.id);
       setSessions(sortedSessions);
       setFilteredSessions(sortedSessions);
@@ -74,7 +71,6 @@ export default function SessionsContent() {
     }
   };
 
-  // ✅ NOVA LÓGICA PARA ABRIR O MODAL DE RESULTADOS
   const openResultsModal = async (session: VoteSession) => {
     if (session.status !== 'ENDED') {
       toast.info('Resultados estão disponíveis apenas para sessões encerradas.');
@@ -83,7 +79,6 @@ export default function SessionsContent() {
 
     setLoading(true);
     try {
-      // Adiciona um timestamp para evitar cache
       const res = await api.get(`/votes_session/${session.id}/results?t=${Date.now()}`);
       const normalized = normalizeResults(res.data);
       
@@ -91,7 +86,6 @@ export default function SessionsContent() {
           toast.warning("Esta sessão foi encerrada, mas não recebeu votos.");
       }
 
-      // Combina os dados da sessão com os resultados e abre o modal
       setSelectedSession({ ...session, results: normalized });
       setShowResultsModal(true);
 
@@ -126,14 +120,13 @@ export default function SessionsContent() {
     try {
       await api.delete(`/votes_session/${id}`);
       toast.success("Sessão excluída com sucesso!");
-      fetchSessions(); // Atualiza a lista
+      fetchSessions();
     } catch (err) {
       console.error('Error deleting session:', err);
       toast.error("Falha ao excluir a sessão.");
     }
   };
   
-  // Lógica de validação e criação de sessão (mantida como estava)
   const validateSession = () => {
     if (!newSession.title.trim()) {
       setCreationMessage({ text: 'Título é obrigatório', isError: true });
@@ -174,7 +167,7 @@ export default function SessionsContent() {
       setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
       setNewSession({ title: '', description: '', startAt: '', endAt: '', options: ['', ''] });
       fetchSessions();
-      setActiveTab('all'); // Muda para a aba de todas as sessões
+      setActiveTab('all');
       setTimeout(() => setCreationMessage({ text: '', isError: false }), 4000);
     } catch (err) {
       setCreationMessage({ text: 'Erro ao criar sessão', isError: true });
@@ -215,60 +208,19 @@ export default function SessionsContent() {
     }
   };
 
-  // Memoiza a lista de sessões encerradas para a aba de resultados
   const endedSessions = useMemo(() => {
     return sessions.filter(s => s.status === 'ENDED');
   }, [sessions]);
 
-
-  // Componente reutilizável para renderizar a lista de sessões
-  const renderSessionList = (sessionList: VoteSession[]) => (
-    <div className="sessions-grid">
-      {sessionList.map(session => (
-        <div key={session.id} className="session-card">
-          <div className="session-header">
-            <h3 className="session-title">#{session.id} - {session.title}</h3>
-            <span className={getStatusBadge(session.status)}>
-              {session.status === 'ACTIVE' ? 'Ativa' : 
-               session.status === 'ENDED' ? 'Encerrada' : 'Não Iniciada'}
-            </span>
-          </div>
-          
-          {session.description && <p className="session-description">{session.description}</p>}
-          
-          <div className="session-details">
-            <div className="detail-item"><FiClock className="icon" /><span>Início: {new Date(session.startAt).toLocaleString()}</span></div>
-            <div className="detail-item"><FiClock className="icon" /><span>Término: {new Date(session.endAt).toLocaleString()}</span></div>
-            <div className="detail-item"><FiUsers className="icon" /><span>Opções: {session.options.length}</span></div>
-          </div>
-          
-          <div className="session-actions">
-            {/* ✅ BOTÃO PARA VER RESULTADOS */}
-            {session.status === 'ENDED' && (
-              <button className="action-button view-results" onClick={() => openResultsModal(session)}>
-                <FiBarChart2 /> Ver Resultados
-              </button>
-            )}
-            <button className="action-button delete" onClick={() => deleteSession(session.id)}>
-              <FiTrash2 /> Excluir
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="sessions-container">
       <div className="tabs-container">
-        {/* Abas de Navegação */}
         <button className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}><FiCalendar className="tab-icon" /> Todas as Sessões</button>
         <button className={`tab ${activeTab === 'results' ? 'active' : ''}`} onClick={() => setActiveTab('results')}><FiBarChart2 className="tab-icon" /> Resultados</button>
         <button className={`tab ${activeTab === 'userVotes' ? 'active' : ''}`} onClick={() => setActiveTab('userVotes')}><FiUser className="tab-icon" /> Votos por Usuário</button>
         <button className={`tab ${activeTab === 'create' ? 'active' : ''}`} onClick={() => setActiveTab('create')}><FiPlus className="tab-icon" /> Nova Sessão</button>
       </div>
 
-      {/* Conteúdo das Tabs */}
       {activeTab === 'all' && (
         <div className="tab-content">
           <div className="search-container">
@@ -280,7 +232,37 @@ export default function SessionsContent() {
           </div>
           {loading ? <div className="loading-spinner">Carregando sessões...</div> : 
            filteredSessions.length === 0 ? <div className="empty-state">Nenhuma sessão encontrada</div> : 
-           renderSessionList(filteredSessions)}
+           (
+            <div className="sessions-grid">
+              {filteredSessions.map(session => (
+                <div key={session.id} className="session-card">
+                  <div className="session-header">
+                    <h3 className="session-title">#{session.id} - {session.title}</h3>
+                    <span className={getStatusBadge(session.status)}>
+                      {session.status === 'ACTIVE' ? 'Ativa' : 
+                       session.status === 'ENDED' ? 'Encerrada' : 'Não Iniciada'}
+                    </span>
+                  </div>
+                  {session.description && <p className="session-description">{session.description}</p>}
+                  <div className="session-details">
+                    <div className="detail-item"><FiClock className="icon" /><span>Início: {new Date(session.startAt).toLocaleString()}</span></div>
+                    <div className="detail-item"><FiClock className="icon" /><span>Término: {new Date(session.endAt).toLocaleString()}</span></div>
+                    <div className="detail-item"><FiUsers className="icon" /><span>Opções: {session.options.length}</span></div>
+                  </div>
+                  <div className="session-actions">
+                    {session.status === 'ENDED' && (
+                      <button className="action-button view-results" onClick={() => openResultsModal(session)}>
+                        <FiBarChart2 /> Ver Resultados
+                      </button>
+                    )}
+                    <button className="action-button delete" onClick={() => deleteSession(session.id)}>
+                      <FiTrash2 /> Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+           )}
         </div>
       )}
 
@@ -289,7 +271,32 @@ export default function SessionsContent() {
           <h2 className="tab-title">Resultados de Sessões Encerradas</h2>
           {loading ? <div className="loading-spinner">Carregando...</div> :
            endedSessions.length === 0 ? <div className="empty-state">Nenhuma sessão encerrada ainda.</div> :
-           renderSessionList(endedSessions)}
+           (
+            <div className="sessions-grid">
+              {endedSessions.map(session => (
+                <div key={session.id} className="session-card">
+                  <div className="session-header">
+                    <h3 className="session-title">#{session.id} - {session.title}</h3>
+                    <span className={getStatusBadge(session.status)}>Encerrada</span>
+                  </div>
+                  {session.description && <p className="session-description">{session.description}</p>}
+                  <div className="session-details">
+                    <div className="detail-item"><FiClock className="icon" /><span>Início: {new Date(session.startAt).toLocaleString()}</span></div>
+                    <div className="detail-item"><FiClock className="icon" /><span>Término: {new Date(session.endAt).toLocaleString()}</span></div>
+                    <div className="detail-item"><FiUsers className="icon" /><span>Opções: {session.options.length}</span></div>
+                  </div>
+                  <div className="session-actions">
+                    <button className="action-button view-results" onClick={() => openResultsModal(session)}>
+                      <FiBarChart2 /> Ver Resultados
+                    </button>
+                    <button className="action-button delete" onClick={() => deleteSession(session.id)}>
+                      <FiTrash2 /> Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+           )}
         </div>
       )}
 
@@ -310,7 +317,35 @@ export default function SessionsContent() {
              ) : (
                 <div className="user-votes-container">
                     <h3>Sessões votadas pelo usuário #{searchUserId}</h3>
-                    {renderSessionList(userVotedSessions)}
+                    <div className="sessions-grid">
+                      {userVotedSessions.map(session => (
+                        <div key={session.id} className="session-card">
+                          <div className="session-header">
+                            <h3 className="session-title">#{session.id} - {session.title}</h3>
+                            <span className={getStatusBadge(session.status)}>
+                              {session.status === 'ACTIVE' ? 'Ativa' : 
+                               session.status === 'ENDED' ? 'Encerrada' : 'Não Iniciada'}
+                            </span>
+                          </div>
+                          {session.description && <p className="session-description">{session.description}</p>}
+                          <div className="session-details">
+                            <div className="detail-item"><FiClock className="icon" /><span>Início: {new Date(session.startAt).toLocaleString()}</span></div>
+                            <div className="detail-item"><FiClock className="icon" /><span>Término: {new Date(session.endAt).toLocaleString()}</span></div>
+                            <div className="detail-item"><FiUsers className="icon" /><span>Opções: {session.options.length}</span></div>
+                          </div>
+                          <div className="session-actions">
+                            {session.status === 'ENDED' && (
+                              <button className="action-button view-results" onClick={() => openResultsModal(session)}>
+                                <FiBarChart2 /> Ver Resultados
+                              </button>
+                            )}
+                            <button className="action-button delete" onClick={() => deleteSession(session.id)}>
+                              <FiTrash2 /> Excluir
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                 </div>
              )}
         </div>
@@ -318,7 +353,6 @@ export default function SessionsContent() {
 
       {activeTab === 'create' && (
         <div className="tab-content">
-          {/* Formulário de criação de sessão (mantido como estava) */}
           <div className="create-session-card">
             <h2>Criar Nova Sessão de Votação</h2>
             {creationMessage.text && (<div className={`alert ${creationMessage.isError ? 'error' : 'success'}`}><FiClock className="icon" /><span>{creationMessage.text}</span></div>)}
@@ -331,7 +365,6 @@ export default function SessionsContent() {
         </div>
       )}
 
-      {/* ✅ RENDERIZAÇÃO CONDICIONAL DO MODAL DE RESULTADOS */}
       {showResultsModal && selectedSession && (
         <ResultsModal
           session={selectedSession as any}
