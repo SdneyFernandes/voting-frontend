@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Role } from '@/types';
-import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
+import { getCookie, deleteCookie } from '@/utils/cookies'; // Removido 'setCookie' pois não é mais usado aqui
 import { api } from '@/services/api';
 
 interface AuthContextType {
   role: Role | null;
   userId: string | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>; // ✅ Alterado
+  token: string | null; // Mantido caso você use para algo mais no futuro
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loaded: boolean;
 }
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
-  // 🔹 Carrega estado inicial a partir dos cookies
+  // 🔹 Carrega estado inicial a partir dos cookies (Esta parte continua igual e funcionando)
   useEffect(() => {
     const uid = getCookie('userId');
     const r = getCookie('role') as Role | null;
@@ -32,22 +32,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoaded(true);
   }, []);
 
-  // ✅ NOVA implementação do login
+  // ✅ Implementação do login CORRIGIDA
   const login = async (email: string, password: string) => {
     try {
       const response = await api.post('/users/login', { email, password });
       const { userId: id, role: userRole } = response.data;
       
-      // ✅ Atualizar estado
+      // ✅ Atualizar o estado do React
       setUserId(id);
       setRole(userRole);
       
-      // ✅ Setar cookies localmente (agora funcionará porque não são httpOnly)
-      setCookie('userId', id);
-      setCookie('role', userRole);
+      // ❌ AS LINHAS QUE CRIAM O COOKIE MANUALMENTE FORAM REMOVIDAS.
+      // O navegador agora vai cuidar disso sozinho, usando a resposta do backend.
       
     } catch (error: any) {
-      throw new Error(error.response?.data || 'Login falhou');
+      // Melhorando o repasse do erro para a interface
+      throw new Error(error.response?.data?.message || 'Credenciais inválidas');
     }
   };
 
