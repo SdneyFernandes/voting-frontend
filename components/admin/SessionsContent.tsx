@@ -8,7 +8,8 @@ import {
 import { api } from '@/services/api';
 import { getCookie } from '@/utils/cookies';
 import { toast } from "sonner";
-
+import ResultsModal from '@/components/ResultsModal';
+import { normalizeResults } from '@/utils/normalizeResults';
 
 interface VoteSession {
   id: number;
@@ -21,12 +22,6 @@ interface VoteSession {
   creatorId: number;
 }
 
-interface VoteResult {
-  totalVotos: number;
-  resultado: Record<string, number>;
-  vencedor?: string;
-}
-
 export default function SessionsContent() {
   const [sessions, setSessions] = useState<VoteSession[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<VoteSession[]>([]);
@@ -34,7 +29,6 @@ export default function SessionsContent() {
   const [activeTab, setActiveTab] = useState<'all' | 'results' | 'userVotes' | 'create'>('all');
   const [searchUserId, setSearchUserId] = useState('');
   const [searchSessionId, setSearchSessionId] = useState('');
-  const [sessionResults, setSessionResults] = useState<Record<number, VoteResult>>({});
   const [userVotedSessions, setUserVotedSessions] = useState<VoteSession[]>([]);
   const [newSession, setNewSession] = useState({
     title: '',
@@ -44,6 +38,10 @@ export default function SessionsContent() {
     options: ['', '']
   });
   const [creationMessage, setCreationMessage] = useState({ text: '', isError: false });
+
+  // 🔹 Estado para o modal
+  const [selectedSession, setSelectedSession] = useState<VoteSession | null>(null);
+  const [selectedResults, setSelectedResults] = useState<any>(null);
 
   const userId = Number(getCookie('userId'));
 
@@ -69,25 +67,26 @@ export default function SessionsContent() {
     }
   };
 
-  const fetchSessionResults = async (sessionId: number) => {
-  try {
-    console.log(`Buscando resultados para sessão ${sessionId}...`);
-    const res = await api.get(`/votes_session/${sessionId}/results`);
-    console.log('Dados recebidos:', res.data);
-    
-    setSessionResults(prev => ({
-      ...prev,
-      [sessionId]: {
+  const fetchSessionResults = async (session: VoteSession) => {
+    try {
+      console.log(`Buscando resultados para sessão ${session.id}...`);
+      const res = await api.get(`/votes_session/${session.id}/results`);
+      console.log('Dados recebidos:', res.data);
+
+      const normalized = normalizeResults({
         totalVotos: res.data.total,
         resultado: res.data.results,
-        vencedor: res.data.winner
-      }
-    }));
-  } catch (err) {
-    console.error('Error fetching session results:', err);
-    toast.error('Erro ao carregar resultados');
-  }
-};
+        vencedor: res.data.winner,
+        _updatedAt: Date.now(),
+      });
+
+      setSelectedSession(session);
+      setSelectedResults(normalized);
+    } catch (err) {
+      console.error('Error fetching session results:', err);
+      toast.error('Erro ao carregar resultados');
+    }
+  };
 
   const fetchUserVotedSessions = async (userId: string) => {
     try {
@@ -133,40 +132,31 @@ export default function SessionsContent() {
   };
 
   const createSession = async () => {
-  if (!validateSession()) return;
+    if (!validateSession()) return;
 
-  try {
-    const { title, description, startAt, endAt, options } = newSession;
-    
-    // Converter as datas para o formato ISO 8601 completo
-    const formattedStartAt = new Date(startAt).toISOString();
-    const formattedEndAt = new Date(endAt).toISOString();
-    
-    await api.post('/votes_session/create', { 
-      title,
-      description,
-      startAt: formattedStartAt,      // Usar datas formatadas
-      endAt: formattedEndAt,          // Usar datas formatadas
-      options: options.filter(opt => opt.trim()),
-      creatorId: userId
-    });
-    
-    setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
-    setNewSession({
-      title: '',
-      description: '',
-      startAt: '',
-      endAt: '',
-      options: ['', '']
-    });
-    fetchSessions();
-    
-    setTimeout(() => setCreationMessage({ text: '', isError: false }), 3000);
-  } catch (err) {
-    setCreationMessage({ text: 'Erro ao criar sessão', isError: true });
-    console.error('Error creating session:', err);
-  }
-};
+    try {
+      const { title, description, startAt, endAt, options } = newSession;
+      const formattedStartAt = new Date(startAt).toISOString();
+      const formattedEndAt = new Date(endAt).toISOString();
+      
+      await api.post('/votes_session/create', { 
+        title,
+        description,
+        startAt: formattedStartAt,
+        endAt: formattedEndAt,
+        options: options.filter(opt => opt.trim()),
+        creatorId: userId
+      });
+      
+      setCreationMessage({ text: 'Sessão criada com sucesso!', isError: false });
+      setNewSession({ title: '', description: '', startAt: '', endAt: '', options: ['', ''] });
+      fetchSessions();
+      setTimeout(() => setCreationMessage({ text: '', isError: false }), 3000);
+    } catch (err) {
+      setCreationMessage({ text: 'Erro ao criar sessão', isError: true });
+      console.error('Error creating session:', err);
+    }
+  };
 
   const searchSessionById = async () => {
     if (!searchSessionId) return;
@@ -183,12 +173,6 @@ export default function SessionsContent() {
     }
   };
 
-  const resetSearch = () => {
-    setFilteredSessions(sessions);
-    setSearchSessionId('');
-    setSearchUserId('');
-  };
-
   const getStatusBadge = (status: string) => {
     const base = "px-2 py-1 rounded-full text-xs font-medium";
     switch(status) {
@@ -203,59 +187,18 @@ export default function SessionsContent() {
     }
   };
 
-  const renderResultsCard = (sessionId: number) => {
-    const result = sessionResults[sessionId];
-    if (!result) {
-      fetchSessionResults(sessionId);
-      return <div className="loading-spinner">Carregando resultados...</div>;
-    }
-
-    if (result.totalVotos === 0) {
-      return (
-        <div className="result-card no-results">
-          <h3>Nenhum voto registrado ainda</h3>
-        </div>
-      );
-    }
-
-    const winner = result.vencedor || 
-      Object.entries(result.resultado).reduce((a, b) => a[1] > b[1] ? a : b)[0];
-    return (
-      <div className="result-card">
-        <h3>Resultado Final</h3>
-        <div className="total-votes">Total de votos: {result.totalVotos}</div>
-        
-        <div className="results-grid">
-          {Object.entries(result.resultado).map(([option, votes]) => (
-            <div 
-              key={option} 
-              className={`result-item ${option === winner ? 'winner' : ''}`}
-            >
-              <div className="option">{option}</div>
-              <div className="votes">{votes} votos</div>
-              <div className="percentage">
-                {Math.round((votes / result.totalVotos) * 100)}%
-              </div>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${(votes / result.totalVotos) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="winner-section">
-          <span className="winner-label">Vencedor:</span>
-          <span className="winner-name">{winner}</span>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="sessions-container">
+       {/* 🔹 Results Modal */}
+      {selectedSession && selectedResults && (
+        <ResultsModal 
+          session={{ ...selectedSession, results: selectedResults }}
+          onClose={() => {
+            setSelectedSession(null);
+            setSelectedResults(null);
+          }}
+        />
+      )}
       {/* Tabs de Navegação */}
       <div className="tabs-container">
         <button 
@@ -368,133 +311,32 @@ export default function SessionsContent() {
 )}
 
       {activeTab === 'results' && (
-  <div className="tab-content">
-    <div className="search-container">
-      <div className="search-group">
-        <FiSearch className="search-icon" />
-        <input 
-          type="text" 
-          placeholder="Buscar por ID da sessão" 
-          value={searchSessionId}
-          onChange={(e) => setSearchSessionId(e.target.value)}
-          className="search-input"
-        />
-        <button 
-          onClick={searchSessionById}
-          className="search-button"
-        >
-          Buscar Resultado
-        </button>
-      </div>
+        <div className="tab-content">
+          {loading ? (
+            <div className="loading-spinner">Carregando resultados...</div>
+          ) : filteredSessions.length === 0 ? (
+            <div className="empty-state">Nenhuma sessão encontrada</div>
+          ) : (
+            <div className="results-container">
+              {filteredSessions.map(session => (
+                <div key={session.id} className="result-card-container">
+                  <div className="session-info-card">
+                    <h3>{session.title}</h3>
+                    <button
+                      className="view-results-button"
+                      onClick={() => fetchSessionResults(session)}
+                    >
+                      <FiBarChart2 /> Ver Resultados
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
 
-    {loading ? (
-      <div className="loading-spinner">Carregando resultados...</div>
-    ) : filteredSessions.length === 0 ? (
-      <div className="empty-state">Nenhuma sessão encontrada</div>
-    ) : (
-      <div className="results-container">
-        {filteredSessions.map(session => (
-          <div key={session.id} className="result-card-container">
-            <div className="session-info-card">
-              <h3>{session.title}</h3>
-              {session.description && (
-                <p className="session-description">{session.description}</p>
-              )}
-              
-              <div className="session-meta-grid">
-                <div className="meta-item">
-                  <FiCalendar className="icon" />
-                  <span>Início: {new Date(session.startAt).toLocaleString()}</span>
-                </div>
-                <div className="meta-item">
-                  <FiCalendar className="icon" />
-                  <span>Término: {new Date(session.endAt).toLocaleString()}</span>
-                </div>
-                <div className="meta-item">
-                  <FiUsers className="icon" />
-                  <span>Opções: {session.options.length}</span>
-                </div>
-                <div className="meta-item status">
-                  <span className={getStatusBadge(session.status)}>
-                    {session.status === 'ACTIVE' ? 'Em andamento' : 
-                     session.status === 'ENDED' ? 'Encerrada' : 'Não iniciada'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {session.status === 'ACTIVE' ? (
-              <div className="active-session-notice">
-                <FiClock className="icon" />
-                <div>
-                  <h4>Sessão em andamento</h4>
-                  <p>Os resultados estarão disponíveis após o encerramento</p>
-                </div>
-              </div>
-            ) : (
-              <div className="results-card">
-                <div className="results-header">
-                  <h4>Resultados da Votação</h4>
-                  <div className="total-votes">
-                    <FiUsers className="icon" />
-                    <span>Total de votos: {sessionResults[session.id]?.totalVotos || 0}</span>
-                  </div>
-                </div>
-
-                {sessionResults[session.id]?.totalVotos === 0 ? (
-                  <div className="no-results">
-                    <FiBarChart2 className="icon" />
-                    <p>Nenhum voto registrado nesta sessão</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="results-grid">
-                      {Object.entries(sessionResults[session.id]?.resultado || {}).map(([option, votes]) => {
-                        const percentage = Math.round((votes / sessionResults[session.id].totalVotos) * 100);
-                        const isWinner = sessionResults[session.id].vencedor === option;
-                        
-                        return (
-                          <div 
-                            key={option} 
-                            className={`result-item ${isWinner ? 'winner' : ''}`}
-                          >
-                            <div className="option-info">
-                              <span className="option-name">{option}</span>
-                              <span className="vote-count">{votes} votos</span>
-                            </div>
-                            <div className="percentage-bar">
-                              <div className="percentage-value">{percentage}%</div>
-                              <div className="progress-container">
-                                <div 
-                                  className="progress-fill"
-                                  style={{ width: `${percentage}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {sessionResults[session.id]?.vencedor && (
-                      <div className="winner-card">
-                        <FiCheck className="icon" />
-                        <div>
-                          <span className="winner-label">Opção vencedora:</span>
-                          <span className="winner-name">{sessionResults[session.id].vencedor}</span>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
 )}
 
       {activeTab === 'userVotes' && (
