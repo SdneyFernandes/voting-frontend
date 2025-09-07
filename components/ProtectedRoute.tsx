@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
     if (!auth.userId || !auth.role) {
       // Não autenticado - redireciona para login
-      router.push('/login');
+      router.push('/');
       return;
     }
 
