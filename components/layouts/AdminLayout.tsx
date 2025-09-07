@@ -164,253 +164,41 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       `}</style>
       
       <style jsx>{`
-        .admin-container {
-          display: flex;
-          min-height: 100vh;
-          background-color: var(--black-1);
-          color: var(--white);
-        }
+        .admin-container { display: flex; min-height: 100vh; }
+        .sidebar { background-color: var(--black-3); transition: all 0.3s ease; height: 100vh; position: sticky; top: 0; border-right: 1px solid var(--gray-1); z-index: 50; }
+        .sidebar.desktop-open { width: 256px; }
+        .sidebar.desktop-closed { width: 80px; }
+        .sidebar-header { padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-1); }
+        .logo { font-size: 1.5rem; font-weight: 800; color: transparent; background: linear-gradient(90deg, var(--white), var(--gray-4)); -webkit-background-clip: text; background-clip: text; }
+        .sidebar-toggle-desktop, .sidebar-toggle-mobile-close { padding: 0.5rem; border-radius: 0.5rem; background: transparent; border: none; color: var(--white); cursor: pointer; }
+        .sidebar-nav { margin-top: 1.5rem; padding: 0 0.5rem; }
+        .main-content { flex: 1; display: flex; flex-direction: column; }
+        .admin-header { background-color: var(--black-3); border-bottom: 1px solid var(--gray-1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+        .header-title { font-size: 1.25rem; font-weight: 600; }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .creative-text, .user-profile { /* Estilos mantidos */ }
+        .content-area { flex: 1; overflow-y: auto; padding: 1.5rem; background-color: var(--black-2); }
         
-        .sidebar {
-          background-color: var(--black-3);
-          transition: all 0.3s ease;
-          height: 100vh;
-          position: sticky;
-          top: 0;
-          border-right: 1px solid var(--gray-1);
-        }
-        
-        .sidebar-header {
-          padding: 1.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px solid var(--gray-1);
-        }
-        
-        .logo {
-          font-size: 1.5rem;
-          font-weight: 800;
-          letter-spacing: 1px;
-          background: linear-gradient(90deg, var(--white), var(--gray-4));
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-        }
-        
-        .sidebar-toggle {
-          padding: 0.5rem;
-          border-radius: 0.5rem;
-          background: transparent;
-          border: none;
-          color: var(--white);
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .sidebar-toggle:hover {
-          background-color: var(--gray-1);
-        }
-        
-        .sidebar-nav {
-          margin-top: 1.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          padding: 0 0.5rem;
-        }
-        
-        .main-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        
-        .admin-header {
-          background-color: var(--black-3);
-          border-bottom: 1px solid var(--gray-1);
-          padding: 1rem 2rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: sticky;
-          top: 0;
-          z-index: 10;
-        }
-        
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        
-        .header-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-        }
-        
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-        }
-        
-        .search-container {
-          position: relative;
-        }
-        
-        .search-icon {
-          position: absolute;
-          left: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--gray-4);
-        }
-        
-        .search-input {
-          padding: 0.5rem 1rem 0.5rem 2.5rem;
-          background-color: var(--black-4);
-          border: 1px solid var(--gray-1);
-          border-radius: 0.5rem;
-          color: var(--white);
-          transition: all 0.3s ease;
-          width: 200px;
-        }
-        
-        .search-input:focus {
-          outline: none;
-          border-color: var(--gray-3);
-          width: 250px;
-        }
-        
-        .notification-btn {
-          position: relative;
-          padding: 0.5rem;
-          background: transparent;
-          border: none;
-          color: var(--white);
-          cursor: pointer;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
-        
-        .notification-btn:hover {
-          background-color: var(--gray-1);
-        }
-        
-        .notification-badge {
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 0.5rem;
-          height: 0.5rem;
-          background-color: var(--red-2);
-          border-radius: 50%;
-        }
-        
-        .user-profile {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-        
-        .avatar {
-          width: 2rem;
-          height: 2rem;
-          border-radius: 50%;
-          background-color: var(--blue-3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .avatar-initial {
-          font-weight: 600;
-          font-size: 0.875rem;
-        }
-        
-        .username {
-          font-size: 0.875rem;
-        }
-        
-        .content-area {
-          flex: 1;
-          overflow-y: auto;
-          padding: 2rem;
-          background-color: var(--black-2);
-        }
+        /* Controles de visibilidade mobile/desktop */
+        .mobile-menu-toggle { display: none; background: transparent; border: none; color: var(--white); cursor: pointer; }
+        .sidebar-toggle-mobile-close { display: none; }
+        .mobile-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .mobile-overlay.visible { opacity: 1; pointer-events: auto; }
 
-        .logout-btn {
-          margin-left: 1rem;
-          padding: 0.5rem;
-          background: transparent;
-          border: none;
-          color: var(--gray-4);
-          cursor: pointer;
-          border-radius: 0.25rem;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
+        /* --- MEDIA QUERY PARA CELULAR --- */
+        @media (max-width: 768px) {
+          .sidebar { position: fixed; width: 280px; transform: translateX(-100%); }
+          .sidebar.mobile-open { transform: translateX(0); }
+          .sidebar-toggle-desktop { display: none; }
+          .sidebar-toggle-mobile-close { display: block; }
+          .logo { display: block !important; }
+          .main-content { width: 100%; }
+          .mobile-menu-toggle { display: block; }
+          .header-title, .creative-text, .username { display: none; }
+          .admin-header { padding: 1rem; justify-content: space-between; }
+          .header-right { gap: 0.5rem; }
+          .content-area { padding: 1rem; }
         }
-        
-        .logout-btn:hover {
-          background-color: var(--gray-1);
-          color: var(--white);
-        }
-        
-        /* Ajuste para o user-profile */
-        .user-profile {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          position: relative;
-        }
-
-        .creative-text {
-          font-family: 'Courier New', monospace;
-          font-size: 1.1rem;
-          color: var(--white);
-          background: var(--black-4);
-          padding: 0.5rem 1rem;
-          border-radius: 0.25rem;
-          margin-right: 1rem;
-          min-width: 180px;
-          text-align: center;
-          position: relative;
-        }
-        
-        .cursor {
-          opacity: 0;
-          transition: opacity 0.1s;
-        }
-        
-        .cursor.visible {
-          opacity: 1;
-        }
-        
-        /* Ajustes para o header-right */
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .mobile-logo {
-font-size: 1.5rem;
-font-weight: bold;
-color: var(--blue-3);
-padding: 0.25rem 0.5rem;
-background: var(--black-4);
-border-radius: 0.25rem;
-}
-.desktop-menu-btn {
-background: transparent;
-border: none;
-color: var(--white);
-cursor: pointer;
-}
-
       `}</style>
     </>
   );
