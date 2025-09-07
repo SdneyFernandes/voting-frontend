@@ -186,7 +186,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           .logo { display: block !important; }
           .main-content { width: 100%; }
           .mobile-menu-toggle { display: block; }
-          .header-title, .creative-text, .username { display: none; }
+          .creative-text, .username { display: none; }
           .admin-header { padding: 1rem; }
           .header-right { gap: 0.5rem; }
           .content-area { padding: 1rem; }
