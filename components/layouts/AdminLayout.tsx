@@ -213,37 +213,11 @@ return (
 </div>
       
       <style jsx>{`
-        .nav-item {
-          display: flex;
-          align-items: center;
-          padding: 0.75rem 1rem;
-          border-radius: 0.5rem;
-          transition: all 0.3s ease;
-          cursor: pointer;
-          color: var(--gray-4);
-        }
-        
-        .nav-item:hover {
-          background-color: var(--gray-1);
-          color: var(--white);
-        }
-        
-        .nav-item.active {
-          background-color: var(--blue-1);
-          color: var(--white);
-        }
-        
-        .nav-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .nav-text {
-          margin-left: 0.75rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-        }
+        .nav-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; transition: all 0.3s ease; cursor: pointer; color: var(--gray-4); overflow: hidden; white-space: nowrap; }
+        .nav-item:hover { background-color: var(--gray-1); color: var(--white); }
+        .nav-item.active { background-color: var(--blue-1); color: var(--white); }
+        .nav-icon { display: flex; align-items: center; justify-content: center; min-width: 20px; }
+        .nav-text { margin-left: 1rem; font-size: 0.875rem; font-weight: 500; }
       `}</style>
     </>
   );
