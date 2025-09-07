@@ -320,6 +320,29 @@ export default function AdminDashboard() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+          @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr; /* Cards de estatísticas em uma única coluna */
+    }
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .filter-container {
+      width: 100%;
+    }
+    .session-item {
+      flex-direction: column; /* Transforma itens da lista em cards */
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .session-item:hover {
+      transform: translateX(0); /* Remove efeito de hover no mobile */
+    }
+    .session-status {
+      align-self: flex-end; /* Alinha o status à direita do card */
+    }
+  }
       `}</style>
     </AdminLayout>
     </ProtectedRoute>
