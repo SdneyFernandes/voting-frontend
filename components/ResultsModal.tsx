@@ -223,9 +223,6 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
         </div>
 
         <div className="modal-footer">
-          <button className="export-button">
-            <FiDownload /> Exportar Resultados
-          </button>
           <button onClick={onClose} className="close-modal-button">
             Fechar
           </button>

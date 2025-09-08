@@ -211,17 +211,19 @@ export default function Register() {
               {errors.password && <span className="error-text">{errors.password}</span>}
             </div>
             
-            <div className="input-group">
-              <select 
-                onChange={e => setForm({ ...form, role: e.target.value as Role })} 
-                className="input-field"
-                required
-              >
-                <option value="USER">Usuário</option>
-                <option value="ADMIN">Administrador</option>
-              </select>
-              <span className="input-highlight"></span>
-            </div>
+           {/* O campo de seleção de Role foi removido pois o padrão é sempre USER */}
+{/* <div className="input-group">
+    <select 
+        onChange={e => setForm({ ...form, role: e.target.value as Role })} 
+        className="input-field"
+        required
+    >
+        <option value="USER">Usuário</option>
+        <option value="ADMIN">Administrador</option>
+    </select>
+    <span className="input-highlight"></span>
+</div>
+*/} 
             
             <button type="submit" className="register-button" disabled={isLoading}>
               {isLoading ? (
