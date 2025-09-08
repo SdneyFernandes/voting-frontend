@@ -114,19 +114,31 @@ export default function Register() {
         }, 500);
       }
       
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message;
-        console.error('Erro detalhado:', errorMessage);
-        
-        if (errorMessage.includes('E-mail já cadastrado')) {
-          setErrors(prev => ({...prev, email: 'Este e-mail já está em uso', general: 'Este e-mail já está cadastrado'}));
-        } else {
-          setErrors(prev => ({...prev, general: 'Erro ao registrar. Tente novamente mais tarde.'}));
-        }
+        if (axios.isAxiosError(error)) {
+      // No backend, a mensagem de erro é "Este email não está autorizado a se registrar no momento."
+      // Podemos pegar uma parte chave dela, como "não está autorizado".
+      const defaultMessage = "Erro ao registrar. Tente novamente mais tarde.";
+      const errorMessage = error.response?.data?.message || error.response?.data || defaultMessage;
+      
+      console.error('Erro detalhado:', errorMessage);
+      
+      if (errorMessage.includes('E-mail já cadastrado')) {
+        setErrors(prev => ({...prev, email: 'Este e-mail já está em uso', general: 'Este e-mail já está cadastrado.'}));
+      
+      } else if (errorMessage.includes('não está autorizado')) { // <-- CONDIÇÃO ADICIONADA
+        setErrors(prev => ({
+            ...prev,
+            email: 'Este e-mail não tem permissão para se registrar.', // Mensagem específica para o campo
+            general: 'Cadastro não autorizado para este e-mail.' // Mensagem geral no topo
+        }));
+
       } else {
-        console.error('Erro desconhecido:', error);
-        setErrors(prev => ({...prev, general: 'Erro desconhecido. Tente novamente.'}));
+        setErrors(prev => ({...prev, general: errorMessage }));
       }
+    } else {
+      console.error('Erro desconhecido:', error);
+      setErrors(prev => ({...prev, general: 'Erro desconhecido. Tente novamente.'}));
+    }
     }
   };
 
