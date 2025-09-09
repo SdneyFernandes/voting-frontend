@@ -21,10 +21,7 @@ export default function UsersContent() {
         api.get('/votes_session')
       ]);
 
-const usersData = usersRes.data.map((u: any) => ({
-      ...u,
-      name: u.name || u.userName || "", 
-    }));
+console.log("🔎 Dados recebidos do backend:", usersRes.data);
 
       setUsers(usersRes.data);
       setFilteredUsers(usersRes.data);
