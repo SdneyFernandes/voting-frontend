@@ -20,6 +20,12 @@ export default function UsersContent() {
         api.get('/users'),
         api.get('/votes_session')
       ]);
+
+const usersData = usersRes.data.map((u: any) => ({
+      ...u,
+      name: u.name || u.userName || "", 
+    }));
+
       setUsers(usersRes.data);
       setFilteredUsers(usersRes.data);
       setSessions(sessionsRes.data);
