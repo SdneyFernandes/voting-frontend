@@ -142,16 +142,15 @@ export default function UserLayout({ children }: { children: ReactNode }) {
                 <span className="notification-badge"></span>
               </button>
               
-               <div className="user-profile">
-              <div className="avatar">
-                {/* ✅ Substitui o ícone pela inicial do nome */}
-                <span className="avatar-initial">{userInitial}</span>
+              <div className="user-profile">
+                <div className="avatar">
+                  <FiUser size={18} />
+                </div>
+                <span className="username">Você</span>
+                <button onClick={handleLogout} className="logout-btn" title="Sair">
+                  <FiLogOut size={20} />
+                </button>
               </div>
-              {/* ✅ Substitui o texto estático pelo primeiro nome */}
-              <span className="username">{userFirstName}</span> 
-              <button onClick={handleLogout} className="logout-btn" title="Sair">
-                <FiLogOut size={20} />
-              </button>
             </div>
           </header>
           <main className="content-area">
