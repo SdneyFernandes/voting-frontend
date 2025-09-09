@@ -21,10 +21,10 @@ export default function UsersContent() {
         api.get('/votes_session')
       ]);
 
-const mappedUsers = usersRes.data.map((u: any) => ({
-      ...u,
-      name: u.userName, // 👈 cria o campo name esperado pelo frontend
-    }));
+const mappedUsers: User[] = usersRes.data.map((u: any) => ({
+  ...u,
+  name: u.userName, // 👈 agora garantimos que `name` exista
+}));
 
       setUsers(usersRes.data);
       setFilteredUsers(usersRes.data);
