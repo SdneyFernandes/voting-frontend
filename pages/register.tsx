@@ -6,132 +6,86 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
+
 export default function Register() {
-  const [form, setForm] = useState<RegisterRequest>({ 
-    userName: '', 
-    email: '', 
-    password: '', 
-    role: 'USER' 
-  });
-  const [errors, setErrors] = useState({
-    userName: '',
-    email: '',
-    password: '',
-    general: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [floatingShapes, setFloatingShapes] = useState<Array<{left: string, top: string, size: string}>>([]);
-  const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
+const [form, setForm] = useState<RegisterRequest>({
+userName: '',
+email: '',
+password: '',
+role: 'USER'
+});
+const [errors, setErrors] = useState({
+userName: '',
+email: '',
+password: '',
+general: ''
+});
+const [isLoading, setIsLoading] = useState(false);
+const [isSuccess, setIsSuccess] = useState(false);
+const [floatingShapes, setFloatingShapes] = useState<Array<{left: string, top: string, size: string}>>([]);
+const formRef = useRef<HTMLFormElement>(null);
+const router = useRouter();
 
-  useEffect(() => {
-    const shapes = Array(8).fill(0).map(() => ({
-      left: `${Math.random() * 80 + 10}%`,
-      top: `${Math.random() * 80 + 10}%`,
-      size: `${Math.random() * 20 + 10}px`
-    }));
-    setFloatingShapes(shapes);
-  }, []);
 
-  const validateForm = () => {
-    let valid = true;
-    const newErrors = {
-      userName: '',
-      email: '',
-      password: '',
-      general: ''
-    };
+useEffect(() => {
+const shapes = Array(8).fill(0).map(() => ({
+left: `${Math.random() * 80 + 10}%`,
+top: `${Math.random() * 80 + 10}%`,
+size: `${Math.random() * 20 + 10}px`
+}));
+setFloatingShapes(shapes);
+}, []);
 
-    // Validação do nome
-    if (!form.userName.trim()) {
-      newErrors.userName = 'Nome é obrigatório';
-      valid = false;
-    } else if (form.userName.length < 3) {
-      newErrors.userName = 'Nome deve ter pelo menos 3 caracteres';
-      valid = false;
-    }
 
-    // Validação do email
-    if (!form.email.trim()) {
-      newErrors.email = 'Email é obrigatório';
-      valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = 'Email inválido';
-      valid = false;
-    }
+const validateForm = () => {
+let valid = true;
+const newErrors = { userName: '', email: '', password: '', general: '' };
 
-    // Validação da senha
-    if (!form.password) {
-      newErrors.password = 'Senha é obrigatória';
-      valid = false;
-    } else if (form.password.length < 6) {
-      newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
-      valid = false;
-    }
 
-    setErrors(newErrors);
-    return valid;
-  };
+if (!form.userName.trim()) {
+newErrors.userName = 'Nome é obrigatório';
+valid = false;
+} else if (form.userName.length < 3) {
+newErrors.userName = 'Nome deve ter pelo menos 3 caracteres';
+valid = false;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      if (formRef.current) {
-        formRef.current.classList.add('shake');
-        setTimeout(() => {
-          if (formRef.current) formRef.current.classList.remove('shake');
-        }, 500);
-      }
-      return;
-    }
-    
-    setIsLoading(true);
-    setErrors(prev => ({...prev, general: ''}));
-    
-    try {
-      const response = await api.post('/users/register', form);
-      console.log('Registro bem-sucedido:', response.data);
-      setIsLoading(false);
-      setIsSuccess(true);
-      
-      if (formRef.current) {
-        formRef.current.classList.add('success-pulse');
-        setTimeout(() => {
-          if (formRef.current) formRef.current.classList.remove('success-pulse');
-        }, 1000);
-      }
-      
-      setTimeout(() => router.push('/'), 1500);
-    } catch (error) {
-      setIsLoading(false);
-      
-      if (formRef.current) {
-        formRef.current.classList.add('shake');
-        setTimeout(() => {
-          if (formRef.current) formRef.current.classList.remove('shake');
-        }, 500);
-      }
-      
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message;
-        console.error('Erro detalhado:', errorMessage);
-        
-        if (errorMessage.includes('E-mail já cadastrado')) {
-          setErrors(prev => ({...prev, email: 'Este e-mail já está em uso', general: 'Este e-mail já está cadastrado'}));
-        } else if (errorMessage.includes('não autorizado')) {
-          // Nova condição para email bloqueado
-          setErrors(prev => ({...prev, email: 'Email não autorizado', general: 'Este email não está autorizado para registro no momento. Entre em contato com o administrador.'}));
-        } else {
-          setErrors(prev => ({...prev, general: 'Erro ao registrar. Tente novamente mais tarde.'}));
-        }
-      } else {
-        console.error('Erro desconhecido:', error);
-        setErrors(prev => ({...prev, general: 'Erro desconhecido. Tente novamente.'}));
-      }
-    }
-  };
+
+if (!form.email.trim()) {
+newErrors.email = 'Email é obrigatório';
+valid = false;
+} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+newErrors.email = 'Email inválido';
+valid = false;
+}
+
+
+if (!form.password) {
+newErrors.password = 'Senha é obrigatória';
+valid = false;
+} else if (form.password.length < 6) {
+newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+valid = false;
+}
+
+
+setErrors(newErrors);
+return valid;
+};
+
+
+const handleSubmit = async (e: React.FormEvent) => {
+e.preventDefault();
+if (!validateForm()) {
+if (formRef.current) {
+formRef.current.classList.add('shake');
+setTimeout(() => formRef.current?.classList.remove('shake'), 500);
+}
+return;
+}
+
+
+};
 
   return (
     <>
