@@ -26,9 +26,9 @@ const mappedUsers: User[] = usersRes.data.map((u: any) => ({
   name: u.userName, // 👈 agora garantimos que `name` exista
 }));
 
-      setUsers(usersRes.data);
-      setFilteredUsers(usersRes.data);
-      setSessions(sessionsRes.data);
+      setUsers(mappedUsers);
+setFilteredUsers(mappedUsers);
+setSessions(sessionsRes.data);
       showFeedback('success', 'Dados carregados com sucesso');
     } catch (err) {
       showFeedback('error', 'Erro ao carregar dados');
