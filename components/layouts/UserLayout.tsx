@@ -9,7 +9,11 @@ export default function UserLayout({ children }: { children: ReactNode }) {
   // Estado para o sidebar no mobile (aberto/fechado)
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+
+   const userFirstName = user?.name ? user.name.split(' ')[0] : 'Usuário';
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
+
 
   const menu = [
     { icon: <FiHome size={20} />, label: "Dashboard" },
@@ -138,15 +142,16 @@ export default function UserLayout({ children }: { children: ReactNode }) {
                 <span className="notification-badge"></span>
               </button>
               
-              <div className="user-profile">
-                <div className="avatar">
-                  <FiUser size={18} />
-                </div>
-                <span className="username">Você</span>
-                <button onClick={handleLogout} className="logout-btn" title="Sair">
-                  <FiLogOut size={20} />
-                </button>
+               <div className="user-profile">
+              <div className="avatar">
+                {/* ✅ Substitui o ícone pela inicial do nome */}
+                <span className="avatar-initial">{userInitial}</span>
               </div>
+              {/* ✅ Substitui o texto estático pelo primeiro nome */}
+              <span className="username">{userFirstName}</span> 
+              <button onClick={handleLogout} className="logout-btn" title="Sair">
+                <FiLogOut size={20} />
+              </button>
             </div>
           </header>
           <main className="content-area">

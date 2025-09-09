@@ -1,53 +1,70 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { Role } from '@/types';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { Role, User, LoginRequest } from '@/types'; // ✅ Importando User e LoginRequest
 import { getCookie, setCookie, deleteCookie } from '@/utils/cookies';
 import { api } from '@/services/api';
 
 interface AuthContextType {
-  role: Role | null;
-  userId: string | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>; // ✅ Alterado
+  user: User | null; // ✅ Estado unificado para o usuário
+  isAuthenticated: boolean;
+  login: (data: LoginRequest) => Promise<void>; // ✅ Assinatura correta
   logout: () => void;
   loaded: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [role, setRole] = useState<Role | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // ✅ MUDANÇA: Usamos um único estado para o objeto do usuário
+  const [user, setUser] = useState<User | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const isAuthenticated = !!user;
 
   // 🔹 Carrega estado inicial a partir dos cookies
   useEffect(() => {
-    const uid = getCookie('userId');
-    const r = getCookie('role') as Role | null;
-    const t = getCookie('token');
+    const userId = getCookie('userId');
+    const role = getCookie('role') as Role | null;
+    const userName = getCookie('userName'); // ✅ Carrega o nome do cookie
 
-    setUserId(uid || null);
-    setRole(r || null);
-    setToken(t || null);
+    if (userId && role && userName) {
+      // ✅ Monta o objeto de usuário a partir dos cookies
+      setUser({
+        id: parseInt(userId, 10),
+        name: userName,
+        role: role,
+        email: '', // Outras informações podem ser carregadas depois se necessário
+        votedSessions: [],
+      });
+    }
     setLoaded(true);
   }, []);
 
   // ✅ NOVA implementação do login
-  const login = async (email: string, password: string) => {
+  const login = async ({ email, password }: LoginRequest) => {
     try {
       const response = await api.post('/users/login', { email, password });
-      const { userId: id, role: userRole } = response.data;
       
-      // ✅ Atualizar estado
-      setUserId(id);
-      setRole(userRole);
+      // ✅ Captura o 'userName' que o backend agora envia
+      const { userId, role, userName } = response.data;
       
-      // ✅ Setar cookies localmente (agora funcionará porque não são httpOnly)
-      setCookie('userId', id);
-      setCookie('role', userRole);
+      const loggedInUser: User = {
+        id: userId,
+        name: userName,
+        role: role,
+        email: email,
+        votedSessions: [],
+      };
+
+      // ✅ Atualizar o estado unificado
+      setUser(loggedInUser);
+      
+      // ✅ Setar cookies, incluindo o novo 'userName'
+      setCookie('userId', userId);
+      setCookie('role', role);
+      setCookie('userName', userName);
       
     } catch (error: any) {
-      throw new Error(error.response?.data || 'Login falhou');
+      console.error("Falha no login:", error);
+      throw new Error(error.response?.data?.message || 'Login falhou');
     }
   };
 
@@ -57,19 +74,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     } finally {
-      setUserId(null);
-      setRole(null);
-      setToken(null);
+      // ✅ Limpa o estado unificado
+      setUser(null);
 
+      // ✅ Limpa todos os cookies relacionados
       deleteCookie('userId');
       deleteCookie('role');
-      deleteCookie('token');
+      deleteCookie('userName');
     }
   };
 
-  const value = { role, userId, token, login, logout, loaded };
+  // ✅ Expõe o objeto 'user' completo no valor do contexto
+  const value = { user, isAuthenticated, login, logout, loaded };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext)!;
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    }
+    return context;
+};
