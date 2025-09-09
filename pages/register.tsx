@@ -64,109 +64,7 @@ if (!form.password) {
 newErrors.password = 'Senha é obrigatória';
 valid = false;
 } else if (form.password.length < 6) {
-newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
-valid = false;
-}
-
-
-setErrors(newErrors);
-return valid;
-};
-
-
-const handleSubmit = async (e: React.FormEvent) => {
-e.preventDefault();
-if (!validateForm()) {
-if (formRef.current) {
-formRef.current.classList.add('shake');
-setTimeout(() => formRef.current?.classList.remove('shake'), 500);
-}
-return;
-}
-
-
-};
-
-  return (
-    <>
-      <Head>
-        <title>Monopólio - Registrar</title>
-      </Head>
-      
-      <div className="register-container">
-        <div className="grid-background"></div>
-        <div className="floating-shapes">
-          {floatingShapes.map((shape, i) => (
-            <div 
-              key={i} 
-              className="shape" 
-              style={{
-                left: shape.left,
-                top: shape.top,
-                width: shape.size,
-                height: shape.size,
-                animationDelay: `${i * 2}s`
-              }}
-            />
-          ))}
-        </div>
-        
-        <div className="register-content">
-          <div className="brand-header">
-            <div className="logo-wrapper">
-              <h1 className="logo">MONOPÓLIO</h1>
-            </div>
-            <p className="tagline">Junte-se ao jogo da decisão coletiva</p>
-          </div>
-          
-          <form ref={formRef} onSubmit={handleSubmit} className="register-form">
-            {errors.general && (
-              <div className="error-message">
-                {errors.general}
-              </div>
-            )}
-            
-            {isSuccess && (
-              <div className="success-message">
-                Registro realizado com sucesso! Redirecionando...
-              </div>
-            )}
-            
-            <div className="input-group">
-              <input 
-                placeholder="Nome completo" 
-                onChange={e => setForm({ ...form, userName: e.target.value })} 
-                className={`input-field ${errors.userName ? 'error' : ''}`}
-                required
-              />
-              <span className="input-highlight"></span>
-              {errors.userName && <span className="error-text">{errors.userName}</span>}
-            </div>
-            
-            <div className="input-group">
-              <input 
-                placeholder="Email" 
-                type="email"
-                onChange={e => setForm({ ...form, email: e.target.value })} 
-                className={`input-field ${errors.email ? 'error' : ''}`}
-                required
-              />
-              <span className="input-highlight"></span>
-              {errors.email && <span className="error-text">{errors.email}</span>}
-            </div>
-            
-            <div className="input-group">
-              <input 
-                placeholder="Senha" 
-                type="password" 
-                onChange={e => setForm({ ...form, password: e.target.value })} 
-                className={`input-field ${errors.password ? 'error' : ''}`}
-                required
-                minLength={6}
-              />
-              <span className="input-highlight"></span>
-              {errors.password && <span className="error-text">{errors.password}</span>}
-            </div>
+</div>
             
            {/* O campo de seleção de Role foi removido pois o padrão é sempre USER */}
 {/* <div className="input-group">
@@ -183,18 +81,14 @@ return;
 */} 
             
             <button type="submit" className="register-button" disabled={isLoading}>
-              {isLoading ? (
-                <span className="button-loader"></span>
-              ) : (
-                'CRIAR CONTA'
-              )}
-              <span className="button-border"></span>
-            </button>
-          </form>
+{isLoading ? <span className="button-loader"></span> : 'CRIAR CONTA'}
+<span className="button-border"></span>
+</button>
+</form>
           
           <div className="footer-links">
-            <p>Já tem uma conta? <Link href="/" className="link">Faça login</Link></p>
-          </div>
+<p>Já tem uma conta? <Link href="/" className="link">Faça login</Link></p>
+</div>
         </div>
       </div>
       
