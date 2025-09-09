@@ -12,12 +12,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [sidebarDesktopOpen, setSidebarDesktopOpen] = useState(true);
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const [activeRoute, setActiveRoute] = useState<AdminRoute>('dashboard');
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
-
-  const userFirstName = user?.name ? user.name.split(' ')[0] : 'Admin';
-  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'A';
-
 
   const handleLogout = async () => {
     try {
@@ -125,14 +121,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <FiBell size={20} /><span className="notification-badge"></span>
               </button>
               <div className="user-profile">
-              <div className="avatar">
-                {/* ✅ Substitui a inicial estática pela inicial dinâmica */}
-                <span className="avatar-initial">{userInitial}</span>
-              </div>
-              {/* ✅ Substitui o nome estático pelo primeiro nome */}
-              <span className="username">{userFirstName}</span>
-              <button onClick={handleLogout} className="logout-btn" title="Sair">
-                <FiLogOut size={20} />
+                <div className="avatar"><span className="avatar-initial">A</span></div>
+                <span className="username">Admin</span>
+                <button onClick={handleLogout} className="logout-btn" title="Sair">
+                  <FiLogOut size={20} />
                 </button>
               </div>
             </div>

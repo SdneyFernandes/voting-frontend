@@ -9,11 +9,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
   // Estado para o sidebar no mobile (aberto/fechado)
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
 
-  const { logout, user } = useAuth();
-
-   const userFirstName = user?.name ? user.name.split(' ')[0] : 'Usuário';
-  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
-
+  const { logout } = useAuth();
 
   const menu = [
     { icon: <FiHome size={20} />, label: "Dashboard" },
