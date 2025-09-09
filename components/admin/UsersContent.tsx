@@ -21,7 +21,10 @@ export default function UsersContent() {
         api.get('/votes_session')
       ]);
 
-console.log("🔎 Dados recebidos do backend:", usersRes.data);
+const mappedUsers = usersRes.data.map((u: any) => ({
+      ...u,
+      name: u.userName, // 👈 cria o campo name esperado pelo frontend
+    }));
 
       setUsers(usersRes.data);
       setFilteredUsers(usersRes.data);
