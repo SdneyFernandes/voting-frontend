@@ -10,7 +10,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 4000); // 3 segundos para a tela de splash
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);

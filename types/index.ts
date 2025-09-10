@@ -7,7 +7,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  votedSessions: {  // Removi o "?" para torná-lo obrigatório
+  votedSessions: {
     id: number;
     votedOption: string;
   }[];

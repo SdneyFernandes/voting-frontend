@@ -34,7 +34,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  // Efeito de digitação
   const [typingText, setTypingText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const fullText = "🥖🥖 🧀🧀";
@@ -105,7 +104,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         <div className="main-content">
           <header className="admin-header">
-            {/* ✅ DIV 'header-left' CORRIGIDA AQUI ✅ */}
+            {/* */}
             <div className="header-left">
               <button onClick={() => setSidebarMobileOpen(true)} className="mobile-menu-toggle">
                 <FiMenu size={22} />

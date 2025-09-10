@@ -56,11 +56,8 @@ export default function Login() {
   setErrors({ email: '', password: '', general: '' });
 
   try {
-    // ✅ CORREÇÃO: Use a função login do AuthContext que recebe email e password
     await auth.login(form.email, form.password);
     
-    // ✅ O redirecionamento deve ser feito automaticamente pelo AuthContext
-    // ou verifique os estados auth.userId e auth.role após o login
     if (auth.userId && auth.role) {
       router.push(auth.role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
     }

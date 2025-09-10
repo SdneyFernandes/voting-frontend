@@ -7,7 +7,6 @@ import AdminLayout from '@/components/layouts/AdminLayout';
 import { FiPlus, FiClock, FiCalendar, FiUsers } from 'react-icons/fi';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-// Definindo o tipo para os status
 type SessionStatus = 'ALL' | 'ACTIVE' | 'ENDED' | 'NOT_STARTED';
 
 interface VoteSession {

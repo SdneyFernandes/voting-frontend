@@ -4,9 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import router from 'next/router';
 
 export default function UserLayout({ children }: { children: ReactNode }) {
-  // Estado para o sidebar no desktop (largo/estreito)
   const [sidebarDesktopOpen, setSidebarDesktopOpen] = useState(true);
-  // Estado para o sidebar no mobile (aberto/fechado)
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
 
   const { logout } = useAuth();
@@ -30,13 +28,10 @@ export default function UserLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  // Efeito de digitação (mantido como estava)
   const [typingText, setTypingText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const fullText = "🥖🥖 🧀🧀";
   useEffect(() => {
-    // ... (toda a lógica do useEffect para o texto digitando foi mantida, sem alterações)
-    // Para economizar espaço, não vou colar ela aqui de novo, mas ela deve continuar no seu código.
     let i = 0;
     let typingInterval: NodeJS.Timeout;
     let cursorInterval: NodeJS.Timeout;
@@ -156,7 +151,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
       </div>
 
       <style jsx global>{`
-       /* Estilos globais (sem alterações) */
+       /* Estilos globais */
        :root {
           --black-1: #0a0a0a; --black-2: #121212; --black-3: #1a1a1a; --black-4: #222222;
           --gray-1: #333333; --gray-2: #555555; --gray-3: #777777; --gray-4: #999999;
@@ -168,7 +163,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
         body { background-color: var(--black-1); color: var(--white); overflow-x: hidden; }
       `}</style>
       
-      {/* 💅 ESTILOS ATUALIZADOS PARA RESPONSIVIDADE 💅 */}
+      {/* ESTILOS */}
       <style jsx>{`
         .layout-container { display: flex; min-height: 100vh; background-color: var(--black-1); }
         .sidebar { background-color: var(--black-3); transition: all 0.3s ease; height: 100vh; position: sticky; top: 0; border-right: 1px solid var(--gray-1); z-index: 50; }

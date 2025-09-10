@@ -23,7 +23,7 @@ export default function UsersContent() {
 
 const mappedUsers: User[] = usersRes.data.map((u: any) => ({
   ...u,
-  name: u.userName, // 👈 agora garantimos que `name` exista
+  name: u.userName, 
 }));
 
       setUsers(mappedUsers);

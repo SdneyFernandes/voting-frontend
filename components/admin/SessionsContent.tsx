@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import ResultsModal from '@/components/ResultsModal';
 import { normalizeResults } from '@/utils/normalizeResults';
 
-// Interface atualizada para incluir os resultados opcionais
 interface VoteSession {
   id: number;
   title: string;
@@ -21,7 +20,7 @@ interface VoteSession {
   status: 'ACTIVE' | 'ENDED' | 'NOT_STARTED';
   options: string[];
   creatorId: number;
-  results?: Record<string, any>; // Adicionado para compatibilidade com o Modal
+  results?: Record<string, any>; 
 }
 
 export default function SessionsContent() {
@@ -41,7 +40,7 @@ export default function SessionsContent() {
   });
   const [creationMessage, setCreationMessage] = useState({ text: '', isError: false });
 
-  // 🔹 Estados para o modal de resultados
+  // Estados para o modal de resultados
   const [selectedSession, setSelectedSession] = useState<VoteSession | null>(null);
   const [showResultsModal, setShowResultsModal] = useState(false);
 

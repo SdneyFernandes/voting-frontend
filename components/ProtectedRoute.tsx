@@ -15,31 +15,26 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!auth?.loaded) return; // Aguarda o carregamento inicial
+    if (!auth?.loaded) return; 
 
     if (!auth.userId || !auth.role) {
-      // Não autenticado - redireciona para login
       router.push('/');
       return;
     }
 
     if (requiredRole && auth.role !== requiredRole) {
-      // Role não autorizado - redireciona para dashboard do usuário ou página 403
       router.push(auth.role === 'ADMIN' ? '/dashboard/admin' : '/dashboard/user');
       return;
     }
 
-    // Autorizado
     setIsAuthorized(true);
   }, [auth, router, requiredRole]);
 
   if (!auth?.loaded || isAuthorized === null) {
-    // Pode adicionar um loading spinner aqui
     return <SplashScreen />;
   }
 
   if (!isAuthorized) {
-    // Redirecionamento em andamento
     return <SplashScreen />;
   }
 

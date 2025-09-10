@@ -44,7 +44,7 @@ export default function VoteModal({
       showToast('Voto registrado com sucesso!', 'success');
       await fetchSessions();
 
-      setTimeout(onClose, 1500); // fecha automático
+      setTimeout(onClose, 1500);
 
     } catch (err: any) {
       console.error('Erro detalhado:', err);
@@ -121,7 +121,7 @@ export default function VoteModal({
         </div>
       </div>
 
-      {/* Estilos permanecem os mesmos */}
+      {/**/}
       <style jsx>{`
         .modal-overlay {
           position: fixed;

@@ -546,14 +546,14 @@ export default function ResultsModal({ session, onClose }: ResultsModalProps) {
 // Função auxiliar para cores das barras
 function getBarColor(index: number): string {
   const colors = [
-    '#3B82F6', // blue-500
-    '#10B981', // emerald-500
-    '#F59E0B', // amber-500
-    '#6366F1', // indigo-500
-    '#EC4899', // pink-500
-    '#14B8A6', // teal-500
-    '#F97316', // orange-500
-    '#8B5CF6', // violet-500
+    '#3B82F6', 
+    '#10B981', 
+    '#F59E0B', 
+    '#6366F1', 
+    '#EC4899', 
+    '#14B8A6', 
+    '#F97316',
+    '#8B5CF6', 
   ];
   return colors[index % colors.length];
 }

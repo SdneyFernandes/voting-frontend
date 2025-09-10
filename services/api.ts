@@ -1,7 +1,6 @@
 import axios from 'axios';
 import Router from 'next/router';
 
-// ✅ URL base dinâmica para desenvolvimento e produção
 const baseURL = process.env.NEXT_PUBLIC_API_URL 
   ? `${process.env.NEXT_PUBLIC_API_URL}/api` 
   : 'http://localhost:8080/api';
@@ -12,16 +11,15 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // 🔑 permite enviar e receber cookies
+  withCredentials: true, 
 });
 
 
-// Interceptadores para tratamento de erros (opcional mas recomendado)
+// Interceptadores para tratamento de erros 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Redirecionar para login se não autenticado
       Router.push('/');
     }
     return Promise.reject(error);

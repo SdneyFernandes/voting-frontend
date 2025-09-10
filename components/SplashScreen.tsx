@@ -43,7 +43,7 @@ export default function SplashScreen() {
 
   return (
     <div className="splash-container">
-      {/* Efeito de partículas modificado */}
+      {/* Efeito de partículas */}
       <div className="particles">
         {particles.map((p, i) => (
           <div 
