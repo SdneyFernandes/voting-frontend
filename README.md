@@ -3,10 +3,12 @@
 Esta é a aplicação frontend para o Sistema de Votação, desenvolvida com **Next.js** e **TypeScript**. Ela serve como a interface do usuário para interagir com a arquitetura de microsserviços, oferecendo painéis distintos e funcionalidades específicas para usuários comuns e administradores.
 
 A aplicação é totalmente reativa, se comunica com o backend através do API Gateway e foi projetada para ser implantada de forma independente na **Render**.
+**[Aplicação ao Vivo](https://www.meuvoto.giize.com/)**
 
-*(Recomendação: Adicione aqui um screenshot ou GIF da aplicação em funcionamento)*
+<img width="1250" height="640" alt="image" src="https://github.com/user-attachments/assets/098a353b-6e4f-4835-95cc-97f2a7f0f876" />
+<img width="1250" height="640" alt="image" src="https://github.com/user-attachments/assets/8e43e754-20a0-471c-9cc9-e9c4c77f85f6" />
+<img width="296" height="577" alt="image" src="https://github.com/user-attachments/assets/26968c67-91b7-49b2-a6b0-7081627797c6" />
 
-**[➡️ Link para a Aplicação ao Vivo (se houver)](https://www.google.com/search?q=%23)**
 
 -----
 
