@@ -219,7 +219,7 @@ setErrors(prev => ({...prev, general: 'Erro desconhecido. Tente novamente.'}));
             </div>
             
            {/* O campo de seleção de Role foi removido pois o padrão é sempre USER */}
- <div className="input-group">
+{/* <div className="input-group">
     <select 
         onChange={e => setForm({ ...form, role: e.target.value as Role })} 
         className="input-field"
@@ -230,7 +230,7 @@ setErrors(prev => ({...prev, general: 'Erro desconhecido. Tente novamente.'}));
     </select>
     <span className="input-highlight"></span>
 </div>
-
+*/} 
             
             <button type="submit" className="register-button" disabled={isLoading}>
               {isLoading ? (
