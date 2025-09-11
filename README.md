@@ -56,15 +56,15 @@ O frontend **não armazena tokens JWT ou gerencia a lógica de autenticação co
 sequenceDiagram
     participant Browser (Next.js)
     participant API Gateway
-    participant Backend Service (ex: Vote Service)
+    participant Vote Service
 
     Browser (Next.js)->>API Gateway: GET /api/votes_session (com cookies 'userId' e 'role')
     
     API Gateway->>API Gateway: Filtro lê os cookies
     
-    API Gateway->>Backend Service: Encaminha a requisição + Headers (X-User-Id, X-User-Role)
+    API Gateway->>Vote Service: Encaminha a requisição + Headers (X-User-Id, X-User-Role)
     
-    Backend Service-->>API Gateway: Retorna dados da sessão
+    Vote Service-->>API Gateway: Retorna dados da sessão
     API Gateway-->>Browser (Next.js): Retorna JSON para o React
 ```
 
